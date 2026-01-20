@@ -169,7 +169,7 @@ def train_dqn(config: dict, args: argparse.Namespace):
                 f"Wait: {env_metrics['avg_waiting_time']:6.2f}s | "
                 f"Queue: {env_metrics['avg_queue_length']:5.2f} | "
                 f"Throughput: {env_metrics['throughput']:6.1f} veh/h | "
-                f"ε: {agent_stats['epsilon']:.3f} | "
+                f"eps: {agent_stats['epsilon']:.3f} | "
                 f"Loss: {agent_stats['avg_loss']:.4f}"
             )
         
