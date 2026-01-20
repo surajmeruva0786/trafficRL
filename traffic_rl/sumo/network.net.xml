@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+SUMO Network File: 4-way Intersection
+This defines a simple 4-leg intersection with traffic lights.
+-->
+
+<net version="1.16" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <!-- Define nodes (junctions) -->
+    <node id="N" type="priority" x="-500.00" y="0.00"/>
+    <node id="S" type="priority" x="500.00" y="0.00"/>
+    <node id="E" type="priority" x="0.00" y="500.00"/>
+    <node id="W" type="priority" x="0.00" y="-500.00"/>
+    <node id="TL" type="traffic_light" x="0.00" y="0.00" tl="TL"/>
+
+    <!-- Define edges (roads) -->
+    <!-- North to Traffic Light -->
+    <edge id="N2TL" from="N" to="TL" priority="2" numLanes="1" speed="13.89">
+        <lane id="N2TL_0" index="0" speed="13.89" length="500.00" shape="-500.00,-1.60 -1.60,-1.60"/>
+    </edge>
+    
+    <!-- Traffic Light to North -->
+    <edge id="TL2N" from="TL" to="N" priority="2" numLanes="1" speed="13.89">
+        <lane id="TL2N_0" index="0" speed="13.89" length="500.00" shape="-1.60,1.60 -500.00,1.60"/>
+    </edge>
+
+    <!-- South to Traffic Light -->
+    <edge id="S2TL" from="S" to="TL" priority="2" numLanes="1" speed="13.89">
+        <lane id="S2TL_0" index="0" speed="13.89" length="500.00" shape="500.00,1.60 1.60,1.60"/>
+    </edge>
+    
+    <!-- Traffic Light to South -->
+    <edge id="TL2S" from="TL" to="S" priority="2" numLanes="1" speed="13.89">
+        <lane id="TL2S_0" index="0" speed="13.89" length="500.00" shape="1.60,-1.60 500.00,-1.60"/>
+    </edge>
+
+    <!-- East to Traffic Light -->
+    <edge id="E2TL" from="E" to="TL" priority="2" numLanes="1" speed="13.89">
+        <lane id="E2TL_0" index="0" speed="13.89" length="500.00" shape="1.60,500.00 1.60,1.60"/>
+    </edge>
+    
+    <!-- Traffic Light to East -->
+    <edge id="TL2E" from="TL" to="E" priority="2" numLanes="1" speed="13.89">
+        <lane id="TL2E_0" index="0" speed="13.89" length="500.00" shape="-1.60,1.60 -1.60,500.00"/>
+    </edge>
+
+    <!-- West to Traffic Light -->
+    <edge id="W2TL" from="W" to="TL" priority="2" numLanes="1" speed="13.89">
+        <lane id="W2TL_0" index="0" speed="13.89" length="500.00" shape="-1.60,-500.00 -1.60,-1.60"/>
+    </edge>
+    
+    <!-- Traffic Light to West -->
+    <edge id="TL2W" from="TL" to="W" priority="2" numLanes="1" speed="13.89">
+        <lane id="TL2W_0" index="0" speed="13.89" length="500.00" shape="1.60,-1.60 1.60,-500.00"/>
+    </edge>
+
+    <!-- Define traffic light logic -->
+    <tlLogic id="TL" type="static" programID="0" offset="0">
+        <!-- Phase 0: NS green, EW red -->
+        <phase duration="30" state="GGrrrrGGrrrr"/>
+        <!-- Phase 1: NS yellow, EW red -->
+        <phase duration="3" state="yyrrrryyrrrr"/>
+        <!-- Phase 2: NS red, EW green -->
+        <phase duration="30" state="rrGGrrrrGGrr"/>
+        <!-- Phase 3: NS red, EW yellow -->
+        <phase duration="3" state="rryyrrrryyrr"/>
+    </tlLogic>
+
+    <!-- Define connections at intersection -->
+    <connection from="N2TL" to="TL2S" fromLane="0" toLane="0" via=":TL_0_0" tl="TL" linkIndex="0" dir="s" state="O"/>
+    <connection from="N2TL" to="TL2E" fromLane="0" toLane="0" via=":TL_1_0" tl="TL" linkIndex="1" dir="l" state="o"/>
+    <connection from="N2TL" to="TL2W" fromLane="0" toLane="0" via=":TL_2_0" tl="TL" linkIndex="2" dir="r" state="o"/>
+    
+    <connection from="S2TL" to="TL2N" fromLane="0" toLane="0" via=":TL_3_0" tl="TL" linkIndex="3" dir="s" state="O"/>
+    <connection from="S2TL" to="TL2W" fromLane="0" toLane="0" via=":TL_4_0" tl="TL" linkIndex="4" dir="l" state="o"/>
+    <connection from="S2TL" to="TL2E" fromLane="0" toLane="0" via=":TL_5_0" tl="TL" linkIndex="5" dir="r" state="o"/>
+    
+    <connection from="E2TL" to="TL2W" fromLane="0" toLane="0" via=":TL_6_0" tl="TL" linkIndex="6" dir="s" state="o"/>
+    <connection from="E2TL" to="TL2N" fromLane="0" toLane="0" via=":TL_7_0" tl="TL" linkIndex="7" dir="l" state="o"/>
+    <connection from="E2TL" to="TL2S" fromLane="0" toLane="0" via=":TL_8_0" tl="TL" linkIndex="8" dir="r" state="o"/>
+    
+    <connection from="W2TL" to="TL2E" fromLane="0" toLane="0" via=":TL_9_0" tl="TL" linkIndex="9" dir="s" state="o"/>
+    <connection from="W2TL" to="TL2S" fromLane="0" toLane="0" via=":TL_10_0" tl="TL" linkIndex="10" dir="l" state="o"/>
+    <connection from="W2TL" to="TL2N" fromLane="0" toLane="0" via=":TL_11_0" tl="TL" linkIndex="11" dir="r" state="o"/>
+
+</net>

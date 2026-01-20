@@ -1,0 +1,77 @@
+# Traffic Signal Optimization Configuration
+
+# SUMO Environment Settings
+sumo:
+  gui: false  # Set to true to visualize during training
+  step_length: 1  # Simulation step length in seconds
+  yellow_time: 3  # Yellow phase duration in seconds
+  min_green_time: 10  # Minimum green phase duration
+  max_green_time: 60  # Maximum green phase duration
+  network_file: "traffic_rl/sumo/network.net.xml"
+  route_file: "traffic_rl/sumo/routes.rou.xml"
+  config_file: "traffic_rl/sumo/simulation.sumocfg"
+
+# Traffic Generation
+traffic:
+  episode_duration: 3600  # Episode duration in seconds
+  num_vehicles_per_episode: 1000  # Total vehicles per episode
+  # Traffic distribution: balanced, ns_heavy, ew_heavy
+  distribution: "balanced"
+  # Probabilities for each direction (N, S, E, W)
+  balanced: [0.25, 0.25, 0.25, 0.25]
+  ns_heavy: [0.35, 0.35, 0.15, 0.15]
+  ew_heavy: [0.15, 0.15, 0.35, 0.35]
+
+# DQN Agent Hyperparameters
+dqn:
+  # Network architecture
+  hidden_layers: [128, 128]  # Hidden layer sizes
+  
+  # Training parameters
+  learning_rate: 0.0001
+  gamma: 0.99  # Discount factor
+  batch_size: 64
+  
+  # Replay buffer
+  buffer_size: 50000
+  min_buffer_size: 1000  # Start training after this many transitions
+  
+  # Exploration
+  epsilon_start: 1.0
+  epsilon_end: 0.05
+  epsilon_decay_steps: 50000  # Linear decay over this many steps
+  
+  # Target network
+  target_update_frequency: 1000  # Update target network every N steps
+  
+  # Training
+  max_episodes: 200
+  max_steps_per_episode: 3600  # Should match episode_duration
+  
+  # Checkpointing
+  save_frequency: 10  # Save model every N episodes
+  model_save_path: "models/dqn_best.pth"
+
+# Reward Function Weights
+reward:
+  waiting_time_weight: -0.5
+  queue_length_weight: -0.3
+  phase_change_penalty: -0.2
+
+# Evaluation
+evaluation:
+  num_episodes: 10
+  epsilon: 0.0  # Greedy policy for evaluation
+
+# Logging
+logging:
+  log_dir: "logs"
+  results_dir: "results"
+  log_frequency: 1  # Log every N episodes
+  tensorboard: true
+
+# Fixed-time Baseline
+baseline:
+  ns_green_time: 30
+  ew_green_time: 30
+  yellow_time: 5
