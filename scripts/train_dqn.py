@@ -75,6 +75,10 @@ def train_dqn(config: dict, args: argparse.Namespace):
         reward_weights=config['reward']
     )
     
+    # Perform initial reset to determine state size
+    logger.info("Performing initial reset to determine state dimensions...")
+    env.reset(seed=args.seed)
+    
     # Initialize agent
     logger.info("Initializing DQN agent...")
     agent = DQNAgent(
