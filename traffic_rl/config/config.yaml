@@ -45,7 +45,7 @@ dqn:
   target_update_frequency: 1000  # Update target network every N steps
   
   # Training
-  max_episodes: 200
+  max_episodes: 20
   max_steps_per_episode: 3600  # Should match episode_duration
   
   # Checkpointing

@@ -45,9 +45,15 @@ class DQNAgent:
         self.action_size = action_size
         self.config = config
         
-        # Set device
+        # Set device with explicit GPU detection
         if device is None:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            if torch.cuda.is_available():
+                self.device = torch.device("cuda:0")
+                print(f"GPU detected: {torch.cuda.get_device_name(0)}")
+                print(f"CUDA version: {torch.version.cuda}")
+            else:
+                self.device = torch.device("cpu")
+                print("WARNING: CUDA not available, using CPU")
         else:
             self.device = torch.device(device)
         
