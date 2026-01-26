@@ -45,7 +45,7 @@ dqn:
   target_update_frequency: 1000  # Update target network every N steps
   
   # Training
-  max_episodes: 20
+  max_episodes: 200  # Match baseline DQN for fair comparison, ensure head specialization
   max_steps_per_episode: 3600  # Should match episode_duration
   
   # Checkpointing
@@ -75,3 +75,30 @@ baseline:
   ns_green_time: 30
   ew_green_time: 30
   yellow_time: 5
+
+# Multi-Head DQN Configuration
+multihead_dqn:
+  # Architecture
+  num_heads: 3  # One per regime (low/medium/high)
+  encoder_layers: [256, 256]  # Shared encoder hidden layers
+  head_layers: [128]  # Individual Q-head hidden layers
+  classifier_layers: [128, 64]  # Regime classifier hidden layers
+  
+  # Gating mechanism
+  gating_type: "soft"  # "hard" (select one head) or "soft" (weighted mixture)
+  
+  # Training
+  classifier_loss_weight: 0.1  # Weight for classifier loss in total loss
+  regime_buffer_separate: false  # Use separate replay buffers per regime (future feature)
+  
+  # Regime thresholds for classification
+  regime_thresholds:
+    low_queue_max: 5  # Max total queue length for low traffic
+    low_wait_max: 20  # Max avg waiting time for low traffic
+    med_queue_max: 15  # Max total queue length for medium traffic
+    med_wait_max: 60  # Max avg waiting time for medium traffic
+  
+  # Specialization tracking
+  track_head_specialization: true
+  specialization_log_frequency: 10  # Log specialization every N episodes
+
