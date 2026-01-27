@@ -19,6 +19,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from traffic_rl.dqn.multihead_agent import MultiHeadDQNAgent
 from traffic_rl.env.sumo_env import SUMOTrafficEnv
+from traffic_rl.env.route_generator import generate_routes, get_distribution_by_name
 from traffic_rl.utils.regime_utils import (
     compute_regime_metrics,
     visualize_regime_distribution,
@@ -27,7 +28,7 @@ from traffic_rl.utils.regime_utils import (
 )
 
 
-def train_multihead_dqn(config_path: str, num_episodes: int = None, use_gpu: bool = True):
+def train_multihead_dqn(config_path: str, num_episodes: int = None, use_gpu: bool = True, resume_from: str = None):
     """
     Train multi-head DQN agent.
     
@@ -35,6 +36,7 @@ def train_multihead_dqn(config_path: str, num_episodes: int = None, use_gpu: boo
         config_path: Path to configuration file
         num_episodes: Number of episodes to train (overrides config)
         use_gpu: Whether to use GPU for training
+        resume_from: Path to checkpoint file to resume training from
     """
     # Load configuration
     with open(config_path, 'r') as f:
@@ -93,6 +95,22 @@ def train_multihead_dqn(config_path: str, num_episodes: int = None, use_gpu: boo
         device=device
     )
     
+    # Determine starting episode
+    start_episode = 1
+    if resume_from:
+        print(f"\n📂 Loading checkpoint: {resume_from}")
+        agent.load(resume_from)
+        
+        # Extract episode number from checkpoint filename
+        # Expected format: multihead_dqn_ep90.pth
+        import re
+        match = re.search(r'ep(\d+)', resume_from)
+        if match:
+            start_episode = int(match.group(1)) + 1
+            print(f"✓ Resuming from episode {start_episode}")
+        else:
+            print("⚠ Could not determine episode number from checkpoint, starting from episode 1")
+    
     # Training metrics
     episode_rewards = []
     episode_losses = []
@@ -114,7 +132,15 @@ def train_multihead_dqn(config_path: str, num_episodes: int = None, use_gpu: boo
     print("-" * 70)
     
     try:
-        for episode in range(1, max_episodes + 1):
+        for episode in range(start_episode, max_episodes + 1):
+            # Generate fresh routes for this episode
+            generate_routes(
+                output_file=config['sumo']['route_file'],
+                num_vehicles=config['traffic']['num_vehicles_per_episode'],
+                episode_duration=config['traffic']['episode_duration'],
+                distribution=get_distribution_by_name(config['traffic']['distribution'])
+            )
+            
             state = env.reset()
             episode_reward = 0
             episode_loss_sum = 0
@@ -328,11 +354,18 @@ if __name__ == "__main__":
         action="store_true",
         help="Disable GPU usage (use CPU only)"
     )
+    parser.add_argument(
+        "--resume",
+        type=str,
+        default=None,
+        help="Path to checkpoint file to resume training from (e.g., models/multihead_dqn_ep90.pth)"
+    )
     
     args = parser.parse_args()
     
     train_multihead_dqn(
         config_path=args.config,
         num_episodes=args.episodes,
-        use_gpu=not args.no_gpu
+        use_gpu=not args.no_gpu,
+        resume_from=args.resume
     )

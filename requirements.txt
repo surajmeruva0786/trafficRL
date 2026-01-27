@@ -14,6 +14,9 @@ sumolib>=1.18.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
 
+# Machine Learning & Metrics
+scikit-learn>=1.0.0
+
 # Utilities
 pyyaml>=6.0
 tqdm>=4.65.0
