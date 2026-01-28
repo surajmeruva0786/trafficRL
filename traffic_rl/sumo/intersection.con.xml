@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/connections_file.xsd">
+    <!-- North approach -->
+    <connection from="N2TL" to="TL2E" fromLane="0" toLane="0" dir="r" />
+    <connection from="N2TL" to="TL2S" fromLane="0" toLane="0" dir="s" />
+    <connection from="N2TL" to="TL2W" fromLane="0" toLane="0" dir="l" />
+    
+    <!-- South approach -->
+    <connection from="S2TL" to="TL2W" fromLane="0" toLane="0" dir="r" />
+    <connection from="S2TL" to="TL2N" fromLane="0" toLane="0" dir="s" />
+    <connection from="S2TL" to="TL2E" fromLane="0" toLane="0" dir="l" />
+    
+    <!-- East approach -->
+    <connection from="E2TL" to="TL2S" fromLane="0" toLane="0" dir="r" />
+    <connection from="E2TL" to="TL2W" fromLane="0" toLane="0" dir="s" />
+    <connection from="E2TL" to="TL2N" fromLane="0" toLane="0" dir="l" />
+    
+    <!-- West approach -->
+    <connection from="W2TL" to="TL2N" fromLane="0" toLane="0" dir="r" />
+    <connection from="W2TL" to="TL2E" fromLane="0" toLane="0" dir="s" />
+    <connection from="W2TL" to="TL2S" fromLane="0" toLane="0" dir="l" />
+</connections>

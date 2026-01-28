@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edges xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/edges_file.xsd">
+    <!-- Incoming edges to the traffic light -->
+    <edge id="N2TL" from="N" to="TL" priority="2" numLanes="1" speed="13.89" />
+    <edge id="S2TL" from="S" to="TL" priority="2" numLanes="1" speed="13.89" />
+    <edge id="E2TL" from="E" to="TL" priority="2" numLanes="1" speed="13.89" />
+    <edge id="W2TL" from="W" to="TL" priority="2" numLanes="1" speed="13.89" />
+    
+    <!-- Outgoing edges from the traffic light -->
+    <edge id="TL2N" from="TL" to="N" priority="2" numLanes="1" speed="13.89" />
+    <edge id="TL2S" from="TL" to="S" priority="2" numLanes="1" speed="13.89" />
+    <edge id="TL2E" from="TL" to="E" priority="2" numLanes="1" speed="13.89" />
+    <edge id="TL2W" from="TL" to="W" priority="2" numLanes="1" speed="13.89" />
+</edges>

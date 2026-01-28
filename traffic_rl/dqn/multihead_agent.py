@@ -314,10 +314,10 @@ class MultiHeadDQNAgent:
                 q_vals = head(features)
                 head_q_values.append(q_vals.cpu().numpy())
             
-            # Compute variance across heads for each state-action pair
+            # Compute standard deviation across heads for each state-action pair
             head_q_values = np.array(head_q_values)  # (num_heads, batch_size, action_size)
-            variance = np.var(head_q_values, axis=0)  # (batch_size, action_size)
-            specialization = np.mean(variance)
+            std_dev = np.std(head_q_values, axis=0)  # (batch_size, action_size)
+            specialization = np.mean(std_dev)
         
         return float(specialization)
     

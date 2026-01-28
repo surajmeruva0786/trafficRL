@@ -39,7 +39,7 @@ dqn:
   # Exploration
   epsilon_start: 1.0
   epsilon_end: 0.05
-  epsilon_decay_steps: 50000  # Linear decay over this many steps
+  epsilon_decay_steps: 500000  # Linear decay over this many steps (~140 episodes)
   
   # Target network
   target_update_frequency: 1000  # Update target network every N steps
@@ -54,9 +54,10 @@ dqn:
 
 # Reward Function Weights
 reward:
-  waiting_time_weight: -0.5
-  queue_length_weight: -0.3
-  phase_change_penalty: -0.2
+  waiting_time_weight: -0.1   # Penalty for normalized waiting time (reduced from -1.0)
+  queue_length_weight: -0.1   # Penalty for normalized queue fraction (reduced from -1.0)
+  throughput_weight: 1.0      # Reward for each completed vehicle (increased from 0.1)
+  phase_change_penalty: -0.05 # Small penalty to avoid excessive switching (reduced from -0.1)
 
 # Evaluation
 evaluation:
@@ -91,12 +92,12 @@ multihead_dqn:
   classifier_loss_weight: 0.1  # Weight for classifier loss in total loss
   regime_buffer_separate: false  # Use separate replay buffers per regime (future feature)
   
-  # Regime thresholds for classification
+  # Regime thresholds for classification (recalibrated for 4-way intersection with 300 vehicles)
   regime_thresholds:
-    low_queue_max: 5  # Max total queue length for low traffic
-    low_wait_max: 20  # Max avg waiting time for low traffic
-    med_queue_max: 15  # Max total queue length for medium traffic
-    med_wait_max: 60  # Max avg waiting time for medium traffic
+    low_queue_max: 15   # Max total queue length for low traffic (increased from 5)
+    low_wait_max: 30    # Max avg waiting time for low traffic (increased from 20)
+    med_queue_max: 40   # Max total queue length for medium traffic (increased from 15)
+    med_wait_max: 90    # Max avg waiting time for medium traffic (increased from 60)
   
   # Specialization tracking
   track_head_specialization: true

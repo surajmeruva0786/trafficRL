@@ -162,7 +162,7 @@ def compare_agents(config_path: str, multihead_model_path: str, baseline_model_p
         net_file=config['sumo']['network_file'],
         route_file=config['sumo']['route_file'],
         config_file=config['sumo']['config_file'],
-        use_gui=False,  # No GUI for evaluation
+        use_gui=True,  # No GUI for evaluation
         step_length=config['sumo']['step_length'],
         yellow_time=config['sumo']['yellow_time'],
         min_green_time=config['sumo']['min_green_time'],
