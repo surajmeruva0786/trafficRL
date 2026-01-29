@@ -33,12 +33,14 @@ def compute_regime_metrics(
     
     # Compute metrics
     accuracy = accuracy_score(true_labels, predicted_labels)
-    conf_matrix = confusion_matrix(true_labels, predicted_labels)
+    conf_matrix = confusion_matrix(true_labels, predicted_labels, labels=[0, 1, 2])
     class_report = classification_report(
         true_labels,
         predicted_labels,
+        labels=[0, 1, 2],
         target_names=regime_names,
-        output_dict=True
+        output_dict=True,
+        zero_division=0
     )
     
     return {

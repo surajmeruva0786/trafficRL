@@ -51,10 +51,7 @@ ENV/
 Thumbs.db
 
 # Project specific
-logs/
-models/
-results/
-*.csv
+
 
 # SUMO
 *.xml.bak
