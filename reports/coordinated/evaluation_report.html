@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grid Network Evaluation Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-bottom: 2px solid #95a5a6;
+            padding-bottom: 5px;
+        }
+        .metric-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric-item {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .metric-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .improvement {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .degradation {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .timestamp {
+            color: #95a5a6;
+            font-size: 14px;
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚦 Grid Network Evaluation Report</h1>
+    
+    <div class="metric-card">
+        <h2>Network Configuration</h2>
+        <div class="metric-grid">
+            <div class="metric-item">
+                <div class="metric-label">Grid Size</div>
+                <div class="metric-value">3×3</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">Total Intersections</div>
+                <div class="metric-value">9</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="metric-card">
+        <h2>Performance Metrics</h2>
+        <div class="metric-grid">
+            <div class="metric-item">
+                <div class="metric-label">Total Throughput</div>
+                <div class="metric-value">1408.37</div>
+                <div style="font-size: 12px; color: #7f8c8d;">vehicles</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">Avg Waiting Time</div>
+                <div class="metric-value">24.40</div>
+                <div style="font-size: 12px; color: #7f8c8d;">seconds</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">Avg Delay</div>
+                <div class="metric-value">9.77</div>
+                <div style="font-size: 12px; color: #7f8c8d;">seconds</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">Avg Speed</div>
+                <div class="metric-value">9.89</div>
+                <div style="font-size: 12px; color: #7f8c8d;">m/s</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">Coordination Score</div>
+                <div class="metric-value">0.483</div>
+                <div style="font-size: 12px; color: #7f8c8d;">0-1 scale</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <h2>Baseline Comparison</h2>
+        <div class="metric-grid">
+            <div class="metric-item">
+                <div class="metric-label">Throughput Improvement</div>
+                <div class="metric-value improvement">
+                    +18.68%
+                </div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">Waiting Time Reduction</div>
+                <div class="metric-value improvement">
+                    +22.02%
+                </div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">Delay Reduction</div>
+                <div class="metric-value improvement">
+                    +23.55%
+                </div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">Overall Improvement</div>
+                <div class="metric-value improvement">
+                    +19.67%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <h2>Coordination Analysis</h2>
+        <img src="visualizations/coordination_scores.png" alt="Coordination Scores">
+        <img src="visualizations/coordination_heatmap.png" alt="Coordination Heatmap">
+    </div>
+    
+    <div class="timestamp">
+        Report generated on 2026-02-08 14:00:31
+    </div>
+</body>
+</html>

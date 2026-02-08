@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nodes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/nodes_file.xsd">
+    <node id="I_0_0" type="traffic_light" x="0.0" y="0.0" />
+    <node id="I_0_1" type="traffic_light" x="500.0" y="0.0" />
+    <node id="I_0_2" type="traffic_light" x="1000.0" y="0.0" />
+    <node id="I_1_0" type="traffic_light" x="0.0" y="500.0" />
+    <node id="I_1_1" type="traffic_light" x="500.0" y="500.0" />
+    <node id="I_1_2" type="traffic_light" x="1000.0" y="500.0" />
+    <node id="I_2_0" type="traffic_light" x="0.0" y="1000.0" />
+    <node id="I_2_1" type="traffic_light" x="500.0" y="1000.0" />
+    <node id="I_2_2" type="traffic_light" x="1000.0" y="1000.0" />
+    <node id="I_0_0_N_boundary" type="dead_end" x="0.0" y="-500.0" />
+    <node id="I_0_1_N_boundary" type="dead_end" x="500.0" y="-500.0" />
+    <node id="I_0_2_N_boundary" type="dead_end" x="1000.0" y="-500.0" />
+    <node id="I_2_0_S_boundary" type="dead_end" x="0.0" y="1500.0" />
+    <node id="I_2_1_S_boundary" type="dead_end" x="500.0" y="1500.0" />
+    <node id="I_2_2_S_boundary" type="dead_end" x="1000.0" y="1500.0" />
+    <node id="I_0_0_W_boundary" type="dead_end" x="-500.0" y="0.0" />
+    <node id="I_1_0_W_boundary" type="dead_end" x="-500.0" y="500.0" />
+    <node id="I_2_0_W_boundary" type="dead_end" x="-500.0" y="1000.0" />
+    <node id="I_0_2_E_boundary" type="dead_end" x="1500.0" y="0.0" />
+    <node id="I_1_2_E_boundary" type="dead_end" x="1500.0" y="500.0" />
+    <node id="I_2_2_E_boundary" type="dead_end" x="1500.0" y="1000.0" />
+</nodes>

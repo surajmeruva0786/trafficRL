@@ -14,7 +14,7 @@ sumo:
 # Traffic Generation
 traffic:
   episode_duration: 3600  # Episode duration in seconds
-  num_vehicles_per_episode: 300  # Reduced from 1000 to prevent gridlock
+  num_vehicles_per_episode: 500  # Reduced from 1000 to prevent gridlock
   # Traffic distribution: balanced, ns_heavy, ew_heavy
   distribution: "balanced"
   # Probabilities for each direction (N, S, E, W)

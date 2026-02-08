@@ -11,19 +11,19 @@ PERFORMANCE SUMMARY
 
 Multi-Head DQN:
 ----------------------------------------------------------------------
-  Average Reward:          210.53 ± 7.26
-  Average Waiting Time:      0.13 ± 0.01 s
-  Average Throughput:      232.49 ± 6.69 veh/h
-  Average Queue Length:      0.26 ± 0.01 vehicles
+  Average Reward:          210.53 ï¿½ 7.26
+  Average Waiting Time:      0.13 ï¿½ 0.01 s
+  Average Throughput:      232.49 ï¿½ 6.69 veh/h
+  Average Queue Length:      0.26 ï¿½ 0.01 vehicles
   Vehicles Completed:       232.5
   Phase Changes:            160.4
 
 Fixed-Time Baseline:
 ----------------------------------------------------------------------
-  Average Reward:          215.06 ± 0.00
-  Average Waiting Time:      0.90 ± 0.00 s
-  Average Throughput:      257.00 ± 0.00 veh/h
-  Average Queue Length:      0.66 ± 0.00 vehicles
+  Average Reward:          215.06 ï¿½ 0.00
+  Average Waiting Time:      0.90 ï¿½ 0.00 s
+  Average Throughput:      257.00 ï¿½ 0.00 veh/h
+  Average Queue Length:      0.66 ï¿½ 0.00 vehicles
   Vehicles Completed:       257.0
   Phase Changes:            109.0
 

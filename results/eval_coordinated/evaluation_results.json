@@ -1,0 +1,27 @@
+{
+  "network_config": {
+    "rows": 3,
+    "cols": 3,
+    "total_intersections": 9
+  },
+  "evaluation_config": {
+    "episodes": 10,
+    "coordination_analysis": true,
+    "baseline_comparison": true
+  },
+  "average_metrics": {
+    "total_throughput": 1408.3715649159753,
+    "network_avg_waiting_time": 24.402012403969223,
+    "network_avg_delay": 9.773076706084403,
+    "network_avg_speed": 9.8920191257419,
+    "avg_coordination_score": 0.4833333333333333
+  },
+  "timestamp": "2026-02-08T13:58:12.176244",
+  "baseline_comparison": {
+    "throughput_improvement": 18.683821645351443,
+    "waiting_time_reduction": 22.02064586412794,
+    "delay_reduction": 23.552992333488177,
+    "speed_improvement": 13.758166435744574,
+    "overall_improvement": 19.673572006690367
+  }
+}

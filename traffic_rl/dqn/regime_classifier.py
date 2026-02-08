@@ -22,7 +22,7 @@ class RegimeClassifier(nn.Module):
     - High (2): Heavy traffic, significant congestion
     """
     
-    def __init__(self, state_size: int, hidden_layers: list = None, dropout: float = 0.2):
+    def __init__(self, state_size: int, hidden_layers: list = None, dropout: float = 0.2, device: str = None):
         """
         Initialize regime classifier.
         
@@ -30,6 +30,7 @@ class RegimeClassifier(nn.Module):
             state_size: Dimension of state space
             hidden_layers: List of hidden layer sizes (default: [128, 64])
             dropout: Dropout probability for regularization
+            device: Device to use ('cuda' or 'cpu', auto-detect if None)
         """
         super(RegimeClassifier, self).__init__()
         
@@ -38,6 +39,16 @@ class RegimeClassifier(nn.Module):
         
         self.state_size = state_size
         self.num_regimes = 3  # Low, Medium, High
+        
+        # Set device with explicit GPU detection
+        if device is None:
+            self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        else:
+            self.device = torch.device(device)
+        
+        # Regime exposure tracking for balanced training
+        self.regime_exposure_counts = {0: 0, 1: 0, 2: 0}  # Count of episodes per regime
+        self.regime_exposure_time = {0: 0.0, 1: 0.0, 2: 0.0}  # Total time in each regime
         
         # Build network layers
         layers = []
@@ -53,6 +64,9 @@ class RegimeClassifier(nn.Module):
         layers.append(nn.Linear(input_size, self.num_regimes))
         
         self.network = nn.Sequential(*layers)
+        
+        # Move network to device
+        self.to(self.device)
     
     def forward(self, state: torch.Tensor) -> torch.Tensor:
         """
@@ -96,6 +110,66 @@ class RegimeClassifier(nn.Module):
                 state = state.unsqueeze(0)
             logits = self.forward(state)
             return F.softmax(logits, dim=1)
+    
+    def record_regime_exposure(self, regime: int, duration: float = 1.0):
+        """
+        Record exposure to a regime during training.
+        
+        Args:
+            regime: Regime index (0, 1, or 2)
+            duration: Duration of exposure in simulation steps or seconds
+        """
+        if regime in self.regime_exposure_counts:
+            self.regime_exposure_counts[regime] += 1
+            self.regime_exposure_time[regime] += duration
+    
+    def get_regime_distribution(self) -> Dict[str, float]:
+        """
+        Get the distribution of regime exposure.
+        
+        Returns:
+            Dictionary with regime exposure percentages
+        """
+        total_count = sum(self.regime_exposure_counts.values())
+        total_time = sum(self.regime_exposure_time.values())
+        
+        if total_count == 0:
+            return {
+                'low_pct': 0.0,
+                'medium_pct': 0.0,
+                'high_pct': 0.0,
+                'total_episodes': 0
+            }
+        
+        return {
+            'low_pct': (self.regime_exposure_counts[0] / total_count) * 100,
+            'medium_pct': (self.regime_exposure_counts[1] / total_count) * 100,
+            'high_pct': (self.regime_exposure_counts[2] / total_count) * 100,
+            'total_episodes': total_count,
+            'total_time': total_time
+        }
+    
+    def is_balanced(self, tolerance: float = 5.0) -> bool:
+        """
+        Check if regime exposure is balanced (approximately 33% each).
+        
+        Args:
+            tolerance: Acceptable deviation from 33.33% (default: 5%)
+            
+        Returns:
+            True if balanced within tolerance
+        """
+        dist = self.get_regime_distribution()
+        target = 33.33
+        
+        return (abs(dist['low_pct'] - target) <= tolerance and
+                abs(dist['medium_pct'] - target) <= tolerance and
+                abs(dist['high_pct'] - target) <= tolerance)
+    
+    def reset_exposure_tracking(self):
+        """Reset regime exposure counters."""
+        self.regime_exposure_counts = {0: 0, 1: 0, 2: 0}
+        self.regime_exposure_time = {0: 0.0, 1: 0.0, 2: 0.0}
 
 
 def compute_regime_label(
