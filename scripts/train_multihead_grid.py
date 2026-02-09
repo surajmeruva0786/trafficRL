@@ -12,6 +12,7 @@ import numpy as np
 import torch
 from datetime import datetime
 import json
+import traci  # Import TraCI for regime sampling
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -154,7 +155,7 @@ def train_multihead_grid(
             device=str(device)
         )
     
-    logger.info(f"✓ Created {num_agents} DQN agents on {device}")
+    logger.info(f"[OK] Created {num_agents} DQN agents on {device}")
     
     # Setup coordination
     network_topology = {
@@ -200,6 +201,9 @@ def train_multihead_grid(
         done = False
         step = 0
         
+        # Track regime metrics during episode (not at end when traffic is 0)
+        regime_samples = []
+        
         # Episode loop
         while not done and step < 3600:
             # Select actions for all agents
@@ -236,8 +240,51 @@ def train_multihead_grid(
                 elif current_phase == 2:  # EW green
                     analyzer.record_signal_change(i_id, 0, step, False)
             
+            # Collect regime metrics on EVERY step
+            total_queue = 0
+            total_waiting = 0
+            num_lanes = 0
+            
+            # Debug on first step only
+            if step == 1:
+                logger.info(f"  [DEBUG] Step {step}: Starting regime sampling for {len(intersection_ids)} intersections")
+            
+            for i_id in intersection_ids:
+                try:
+                    # Get lanes controlled by this traffic light
+                    controlled_lanes = traci.trafficlight.getControlledLanes(i_id)
+                    # Remove duplicates (same lane can appear multiple times)
+                    unique_lanes = list(set(controlled_lanes))
+                    
+                    if step == 1:
+                        logger.info(f"  [DEBUG] Intersection {i_id}: {len(unique_lanes)} unique lanes")
+                    
+                    for lane in unique_lanes:
+                        total_queue += traci.lane.getLastStepHaltingNumber(lane)
+                        vehicle_ids = traci.lane.getLastStepVehicleIDs(lane)
+                        if vehicle_ids:
+                            total_waiting += sum([traci.vehicle.getWaitingTime(vid) for vid in vehicle_ids])
+                        num_lanes += 1
+                except Exception as e:
+                    if step == 1:
+                        logger.info(f"  [DEBUG] Error for {i_id}: {e}")
+                    pass
+            
+            if step == 1:
+                logger.info(f"  [DEBUG] Step {step}: num_lanes={num_lanes}, total_queue={total_queue}, total_waiting={total_waiting}")
+            
+            if num_lanes > 0:
+                avg_queue = total_queue / num_lanes
+                avg_wait = total_waiting / num_lanes
+                regime_samples.append((avg_queue, avg_wait))
+            elif step == 1:
+                logger.info(f"  [DEBUG] Step {step}: num_lanes is 0, NOT appending sample!")
+            
             states = next_states
             step += 1
+        
+        # Debug: Log episode length
+        logger.info(f"  Episode completed in {step} steps, collected {len(regime_samples)} regime samples")
         
         # Get episode metrics
         env_metrics = env.get_metrics()
@@ -253,13 +300,27 @@ def train_multihead_grid(
         
         avg_coordination = np.mean(list(coordination_scores.values())) if coordination_scores else 0.0
         
-        # Record regime (simplified - using average queue length)
-        avg_state = np.mean([states[i_id] for i_id in intersection_ids], axis=0)
-        avg_queue = np.mean(avg_state[:4])  # First 4 elements are queues
+        # Record regime using sampled metrics from during the episode
+        if regime_samples:
+            # Calculate average queue and wait time from samples taken during episode
+            avg_queue_per_lane = np.mean([s[0] for s in regime_samples])
+            avg_waiting_time = np.mean([s[1] for s in regime_samples])
+        else:
+            # Fallback if no samples (shouldn't happen)
+            avg_queue_per_lane = 0.0
+            avg_waiting_time = 0.0
         
-        if avg_queue < 0.3:
+        # Debug: Log actual metrics for regime classification
+        logger.info(f"  Regime Metrics: Avg Queue/Lane={avg_queue_per_lane:.2f}, Avg Wait={avg_waiting_time:.2f}s (from {len(regime_samples)} samples)")
+        
+        # Classify regime based on actual metrics
+        # Adjusted thresholds for actual traffic levels (avg ~0.40 queue/lane, ~5s wait)
+        # Low: < 0.25 vehicles/lane OR < 3s wait (very light traffic)
+        # Medium: 0.25-0.7 vehicles/lane OR 3-10s wait (moderate traffic)
+        # High: > 0.7 vehicles/lane OR > 10s wait (heavy traffic)
+        if avg_queue_per_lane < 0.25 and avg_waiting_time < 3:
             regime = 0  # Low
-        elif avg_queue < 0.6:
+        elif avg_queue_per_lane < 0.7 and avg_waiting_time < 10:
             regime = 1  # Medium
         else:
             regime = 2  # High

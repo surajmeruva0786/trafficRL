@@ -2,7 +2,7 @@
 
 # SUMO Environment Settings
 sumo:
-  gui: false  # Set to true to visualize during training
+  gui: true  # Set to true to visualize during training
   step_length: 1  # Simulation step length in seconds
   yellow_time: 3  # Yellow phase duration in seconds
   min_green_time: 10  # Minimum green phase duration
@@ -14,7 +14,7 @@ sumo:
 # Traffic Generation
 traffic:
   episode_duration: 3600  # Episode duration in seconds
-  num_vehicles_per_episode: 500  # Reduced from 1000 to prevent gridlock
+  num_vehicles_per_episode: 1000  # Reduced from 1000 to prevent gridlock
   # Traffic distribution: balanced, ns_heavy, ew_heavy
   distribution: "balanced"
   # Probabilities for each direction (N, S, E, W)
@@ -92,12 +92,14 @@ multihead_dqn:
   classifier_loss_weight: 0.1  # Weight for classifier loss in total loss
   regime_buffer_separate: false  # Use separate replay buffers per regime (future feature)
   
-  # Regime thresholds for classification (recalibrated for 4-way intersection with 300 vehicles)
+  # Regime thresholds for classification (adjusted for actual traffic levels)
+  # Based on observed metrics: ~0.40 queue/lane (~14 total for 36 lanes), ~5s wait
   regime_thresholds:
-    low_queue_max: 15   # Max total queue length for low traffic (increased from 5)
-    low_wait_max: 30    # Max avg waiting time for low traffic (increased from 20)
-    med_queue_max: 40   # Max total queue length for medium traffic (increased from 15)
-    med_wait_max: 90    # Max avg waiting time for medium traffic (increased from 60)
+    low_queue_max: 3      # Max total queue length for low traffic (very light)
+    low_wait_max: 10      # Max avg waiting time for low traffic (very light)
+    med_queue_max: 8      # Max total queue length for medium traffic (moderate)
+    med_wait_max: 25      # Max avg waiting time for medium traffic (moderate)
+    # High traffic: > 8 queue or > 25s wait
   
   # Specialization tracking
   track_head_specialization: true
