@@ -249,7 +249,7 @@ def generate_comparison_report(multihead_results, baseline_results, output_dir):
     
     # 4. Generate Text Report
     report_path = output_dir / 'comparison_report.txt'
-    with open(report_path, 'w') as f:
+    with open(report_path, 'w', encoding='utf-8') as f:
         f.write("="*70 + "\n")
         f.write("COMPREHENSIVE COMPARISON REPORT\n")
         f.write("Multi-Head DQN vs Fixed-Time Baseline\n")
