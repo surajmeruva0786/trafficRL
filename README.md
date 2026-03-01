@@ -383,6 +383,67 @@ With default settings, the DQN agent typically achieves:
 - Try different `learning_rate` (0.0001 - 0.001)
 - Ensure sufficient exploration (`epsilon_decay_steps`)
 
+## 🌍 Real-World Case Study: Habsiguda-Nacharam Corridor
+
+### Overview
+
+This project includes a real-world traffic network implementation based on the **Habsiguda–Nacharam corridor** in Hyderabad, India. The corridor models 6 signalized junctions along the NH163 route with realistic road geometry, lane configurations, and traffic patterns.
+
+### Junction Layout
+
+```
+         J0 -------- J2 -------- J3 -------- J4 -------- J5
+         |
+         J1
+```
+
+| Junction | Name | Type |
+|----------|------|------|
+| J0 | Habsiguda Junction | T-junction |
+| J1 | Habsiguda Colony Junction | 4-way |
+| J2 | Nagendra Nagar Junction | 4-way |
+| J3 | ECIL X Roads | 4-way |
+| J4 | Nacharam X Roads | 4-way |
+| J5 | Mallapur Junction | T-junction |
+
+### How to Run
+
+#### Step 1: Generate the SUMO Network
+
+```bash
+python traffic_rl/sumo/generate_habsiguda_network.py
+python traffic_rl/sumo/generate_habsiguda_routes.py
+```
+
+#### Step 2: Train (Fine-tune from Pre-trained Model)
+
+```bash
+# Full training (100 episodes, transfers weights from best multihead DQN)
+python scripts/train_habsiguda.py
+
+# Quick test (5 episodes, shorter duration)
+python scripts/train_habsiguda.py --test-mode
+
+# With SUMO GUI visualization
+python scripts/train_habsiguda.py --gui --episodes 1
+```
+
+#### Step 3: Evaluate
+
+```bash
+python scripts/evaluate_habsiguda.py
+```
+
+This compares the fine-tuned RL agent against a fixed-time baseline and generates comparison plots in `results/habsiguda_evaluation/`.
+
+### Transfer Learning Approach
+
+The training uses **transfer learning** from the best pre-trained multihead DQN model:
+- Pre-trained weights are loaded from `models/multihead_dqn_best.pth`
+- One agent per junction, all initialized with the same pre-trained weights
+- Fine-tuning uses a lower learning rate (0.00005) and reduced exploration (ε=0.3)
+- The model adapts to the real-world corridor topology and traffic patterns
+
 ## 📚 Additional Information
 
 ### Understanding the Metrics

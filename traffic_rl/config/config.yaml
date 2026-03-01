@@ -105,3 +105,40 @@ multihead_dqn:
   track_head_specialization: true
   specialization_log_frequency: 10  # Log specialization every N episodes
 
+# Habsiguda-Nacharam Corridor Configuration
+habsiguda_nacharam:
+  # Network files
+  network_file: "traffic_rl/sumo/habsiguda_network.net.xml"
+  route_file: "traffic_rl/sumo/habsiguda_routes.rou.xml"
+  
+  # Corridor info
+  total_junctions: 6
+  junction_types:
+    J0: "T"       # Habsiguda Junction
+    J1: "4way"    # Habsiguda Colony Junction
+    J2: "4way"    # Nagendra Nagar Junction
+    J3: "4way"    # ECIL X Roads
+    J4: "4way"    # Nacharam X Roads
+    J5: "T"       # Mallapur Junction
+  
+  # Traffic generation
+  total_vehicles: 500
+  simulation_time: 3600
+  flow_weights:
+    arterial_ew: 0.45   # Through-traffic eastbound (dominant)
+    arterial_we: 0.25   # Through-traffic westbound
+    local_ns: 0.15      # Local cross-traffic
+    branch: 0.15        # Habsiguda Colony branch
+  
+  # Fine-tuning hyperparameters (transfer learning)
+  fine_tuning:
+    pretrained_model: "models/multihead_dqn_best.pth"
+    learning_rate: 0.00005     # 2x lower than base training
+    epsilon_start: 0.3         # Reduced exploration
+    epsilon_end: 0.05
+    epsilon_decay_steps: 30000
+    max_episodes: 100
+    save_frequency: 10
+    model_save_dir: "models/habsiguda"
+    results_dir: "results/habsiguda_training"
+

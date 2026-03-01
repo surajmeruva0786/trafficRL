@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edges xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/edges_file.xsd">
+    <edge id="J0_to_J2" from="J0" to="J2" priority="3" numLanes="2" speed="13.89" />
+    <edge id="J2_to_J0" from="J2" to="J0" priority="3" numLanes="2" speed="13.89" />
+    <edge id="J2_to_J3" from="J2" to="J3" priority="3" numLanes="2" speed="13.89" />
+    <edge id="J3_to_J2" from="J3" to="J2" priority="3" numLanes="2" speed="13.89" />
+    <edge id="J3_to_J4" from="J3" to="J4" priority="3" numLanes="2" speed="13.89" />
+    <edge id="J4_to_J3" from="J4" to="J3" priority="3" numLanes="2" speed="13.89" />
+    <edge id="J4_to_J5" from="J4" to="J5" priority="3" numLanes="2" speed="13.89" />
+    <edge id="J5_to_J4" from="J5" to="J4" priority="3" numLanes="2" speed="13.89" />
+    <edge id="J0_to_J1" from="J0" to="J1" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J1_to_J0" from="J1" to="J0" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J0_W_boundary_to_J0" from="J0_W_boundary" to="J0" priority="2" numLanes="2" speed="13.89" />
+    <edge id="J0_to_J0_W_boundary" from="J0" to="J0_W_boundary" priority="2" numLanes="2" speed="13.89" />
+    <edge id="J1_S_boundary_to_J1" from="J1_S_boundary" to="J1" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J1_to_J1_S_boundary" from="J1" to="J1_S_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J1_E_boundary_to_J1" from="J1_E_boundary" to="J1" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J1_to_J1_E_boundary" from="J1" to="J1_E_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J1_W_boundary_to_J1" from="J1_W_boundary" to="J1" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J1_to_J1_W_boundary" from="J1" to="J1_W_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J2_N_boundary_to_J2" from="J2_N_boundary" to="J2" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J2_to_J2_N_boundary" from="J2" to="J2_N_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J2_S_boundary_to_J2" from="J2_S_boundary" to="J2" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J2_to_J2_S_boundary" from="J2" to="J2_S_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J3_N_boundary_to_J3" from="J3_N_boundary" to="J3" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J3_to_J3_N_boundary" from="J3" to="J3_N_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J3_S_boundary_to_J3" from="J3_S_boundary" to="J3" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J3_to_J3_S_boundary" from="J3" to="J3_S_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J4_N_boundary_to_J4" from="J4_N_boundary" to="J4" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J4_to_J4_N_boundary" from="J4" to="J4_N_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J4_S_boundary_to_J4" from="J4_S_boundary" to="J4" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J4_to_J4_S_boundary" from="J4" to="J4_S_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J5_N_boundary_to_J5" from="J5_N_boundary" to="J5" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J5_to_J5_N_boundary" from="J5" to="J5_N_boundary" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J5_S_boundary_to_J5" from="J5_S_boundary" to="J5" priority="2" numLanes="1" speed="8.33" />
+    <edge id="J5_to_J5_S_boundary" from="J5" to="J5_S_boundary" priority="2" numLanes="1" speed="8.33" />
+</edges>
