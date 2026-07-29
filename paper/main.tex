@@ -512,6 +512,13 @@ $|A|=2$), one per traffic regime:
           wait $>25$\,s. Learns aggressive queue-clearing to prevent
           cascading delays under saturation.
 \end{itemize}
+These queue- and waiting-time thresholds are not adopted from prior
+literature; they were obtained empirically, through iterative
+experimentation (trial and error) while developing and tuning the model
+on the simulation setups used in this paper, and were chosen to yield a
+reasonable, well-populated split of low-, medium-, and high-demand traffic
+states for these specific environments.
+
 Each head maintains its own parameters $\theta_k$ and target network
 $\theta_k^{-}$, enabling independent specialization without gradient
 interference between regimes.
