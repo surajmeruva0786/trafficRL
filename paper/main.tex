@@ -1689,15 +1689,36 @@ MObility,''
 % spilling into whatever partial space is left at the bottom of the
 % references column.
 \newpage
-
-% IEEEtran defaults to \flushbottom, which stretches the rubber glue
-% between paragraphs so every column reaches the full text height.
-% With only three short biographies that glue is what was rendering
-% as large gaps between authors. \raggedbottom lets the column end
-% wherever the text naturally does, so the biographies sit close
-% together and any leftover space appears only once, at the very
-% bottom of the page.
 \raggedbottom
+
+% Root cause of the large gaps between biographies, found by reading
+% IEEEtran.cls directly: \IEEEbiographynophoto opens every entry with
+%   \vskip 4\baselineskip plus 1fil minus 0\baselineskip
+% "1fil" is an *infinite*-order stretchable glue, hardcoded by the
+% class itself. Whenever a column has extra room to fill (exactly our
+% case, with only three short biographies), TeX always prefers to
+% expand the highest-order stretch available, so this glue absorbs all
+% of the slack -- as a large gap before every single entry -- no
+% matter what \raggedbottom or \flushbottom is set to. There is no
+% public hook to change just that one skip, so the environment is
+% locally redefined here with the same body but a small fixed-size,
+% non-stretchable lead-in skip instead, which leaves no elastic glue
+% for the column to expand.
+\makeatletter
+\renewenvironment{IEEEbiographynophoto}[1]{%
+\if@IEEEbiographyTOCentrynotmade%
+\setcounter{IEEEbiography}{-1}%
+\refstepcounter{IEEEbiography}%
+\addcontentsline{toc}{section}{Biographies}%
+\global\@IEEEbiographyTOCentrynotmadefalse%
+\fi%
+\refstepcounter{IEEEbiography}%
+\addcontentsline{toc}{subsection}{#1}%
+\normalfont\@IEEEcompsoconly{\sffamily}\footnotesize\interlinepenalty500%
+\vskip 1.5\baselineskip%
+\parskip=0pt\par%
+\noindent\textbf{#1\ }\@IEEEgobbleleadPARNLSP}{\relax\par\normalfont}
+\makeatother
 
 \begin{IEEEbiographynophoto}{Suraj Meruva}
 is pursuing his studies in the Department of Data Science and Artificial
