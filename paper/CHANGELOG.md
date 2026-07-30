@@ -122,3 +122,16 @@ presentation, metadata, or a technical/formatting fix.
   - Krajzewicz et al., SUMO (2012) — cited alongside Lopez et al.
 - Verified every `\cite` key resolves to a `\bibitem` and every
   `\bibitem` is cited at least once (no orphans in either direction).
+
+## 9. Excess spacing after the biography section removed
+**Commit:** `78be508`
+
+- Removed a stray `\vspace{11pt}` inserted before the first author
+  biography and a trailing `\vfill` before `\end{document}`, both of
+  which produced a visibly large, unprofessional gap between the
+  bibliography/biography block and the end of the paper.
+- Neither command is used anywhere else in the document — every other
+  section header (Introduction, Related Work, Conclusion, etc.) is
+  followed immediately by its content with no manual spacing — so
+  removing them also brings the biography section in line with the
+  formatting convention used throughout the rest of `main.tex`.
