@@ -175,3 +175,38 @@ presentation, metadata, or a technical/formatting fix.
   document, so the three biographies now sit at their natural spacing
   and any leftover column space shows up once, at the bottom of the
   page, which is normal for the last page of an IEEE two-column paper.
+- **This turned out to be incomplete** — a subsequent rendered PDF
+  still showed the same large gaps between each author (see item 12).
+  `\raggedbottom` was a reasonable diagnosis (IEEEtran does default to
+  `\flushbottom`) but not the actual mechanism producing the gaps.
+
+## 12. Actual root cause: an infinite-stretch glue hardcoded in IEEEtran.cls
+**Commit:** `0baf308`
+
+- Item 11's `\raggedbottom` fix did not remove the gaps in practice, so
+  rather than guess again, downloaded IEEEtran.cls itself and read the
+  literal definition of the `IEEEbiographynophoto` environment. It
+  opens every entry with:
+  ```
+  \vskip 4\baselineskip plus 1fil minus 0\baselineskip
+  ```
+- `1fil` is TeX's *infinite*-order stretchable glue, hardcoded directly
+  into the class (not a side effect of `\flushbottom`). Whenever a
+  column has slack to fill — exactly the situation here, with only
+  three short biographies in a column much taller than their combined
+  text — TeX always expands the highest-order stretch glue available
+  first. With three of these `1fil` skips in the same column (one per
+  biography), all of the slack gets distributed across them as a
+  visible gap before every entry, regardless of `\raggedbottom` or
+  `\flushbottom`, which is exactly why item 11's fix had no visible
+  effect.
+- IEEEtran does not expose a public hook to change just that one skip,
+  so `IEEEbiographynophoto` is locally redefined in `main.tex`
+  (wrapped in `\makeatletter`/`\makeatother`) with a body identical to
+  the original except the elastic `\vskip 4\baselineskip plus 1fil
+  minus 0\baselineskip` is replaced with a small fixed, non-stretchable
+  `\vskip 1.5\baselineskip`. Every other internal macro the environment
+  calls (`\@IEEEcompsoconly`, `\@IEEEgobbleleadPARNLSP`,
+  `\@IEEEbiographyTOCentrynotmade`, the `IEEEbiography` counter) was
+  checked against the upstream class source to confirm the override
+  reproduces the original behavior exactly, minus the stretch.
