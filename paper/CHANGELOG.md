@@ -135,3 +135,22 @@ presentation, metadata, or a technical/formatting fix.
   followed immediately by its content with no manual spacing — so
   removing them also brings the biography section in line with the
   formatting convention used throughout the rest of `main.tex`.
+
+## 10. Biography section forced onto a clean column boundary
+**Commit:** `bac5d0a`
+
+- After the change above, a rendered PDF still showed an uneven
+  biography layout: entries packed into the top of a column followed
+  by a large mid-column blank gap before the last entry, because the
+  biography block was starting wherever the references happened to
+  leave off rather than at a column boundary.
+- Added `\newpage` immediately before the first `\begin{IEEEbiographynophoto}`
+  so the section always begins at the top of a column instead of
+  trying to partially fit into whatever space is left at the bottom of
+  the references column. This is the technique the IEEEtran template
+  itself documents (`bare_jrnl.tex`: "insert where needed to balance
+  the two columns ... with biographies") for this exact situation.
+- With three biographies of uneven length (two short, one
+  substantially longer for the faculty co-author), this lets the two
+  short entries share one column while the long one fills the other
+  cleanly, instead of one entry being pushed past a gap.
