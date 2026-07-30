@@ -154,3 +154,24 @@ presentation, metadata, or a technical/formatting fix.
   substantially longer for the faculty co-author), this lets the two
   short entries share one column while the long one fills the other
   cleanly, instead of one entry being pushed past a gap.
+
+## 11. Root cause found: \flushbottom stretching the gaps between authors
+**Commit:** `48d0aa3`
+
+- The `\newpage` fix above corrected the *starting position* of the
+  biography section but not the actual defect: a rendered PDF (page
+  13) showed a visibly large, uneven blank gap after Suraj Meruva's
+  biography and another after Boini Abhiram's, with Avantika Singh's
+  longer entry filling out the rest of the column.
+- Root cause: `\documentclass[...,journal]{IEEEtran}` defaults to
+  `\flushbottom`, LaTeX's mode for making every column reach exactly
+  `\textheight` by stretching the rubber glue between paragraphs. With
+  only three short biography entries and nothing else left in the
+  column, that glue had a lot of stretching to do, and it was
+  distributed as visible gaps between each author rather than as one
+  block of unused space at the bottom.
+- Fix: added `\raggedbottom` right before the biography section. This
+  turns off the page-filling glue stretch for the rest of the
+  document, so the three biographies now sit at their natural spacing
+  and any leftover column space shows up once, at the bottom of the
+  page, which is normal for the last page of an IEEE two-column paper.
