@@ -1685,11 +1685,19 @@ MObility,''
 % ---------------------------------------------------------------
 % Author Biographies
 % ---------------------------------------------------------------
-% Start the biography section at the top of a fresh page/column pair
-% rather than letting it spill into whatever partial space is left at
-% the bottom of the references column -- that partial fit is what was
-% causing the uneven layout and large mid-column gap.
+% Start the biography section at a clean column boundary instead of
+% spilling into whatever partial space is left at the bottom of the
+% references column.
 \newpage
+
+% IEEEtran defaults to \flushbottom, which stretches the rubber glue
+% between paragraphs so every column reaches the full text height.
+% With only three short biographies that glue is what was rendering
+% as large gaps between authors. \raggedbottom lets the column end
+% wherever the text naturally does, so the biographies sit close
+% together and any leftover space appears only once, at the very
+% bottom of the page.
+\raggedbottom
 
 \begin{IEEEbiographynophoto}{Suraj Meruva}
 is pursuing his studies in the Department of Data Science and Artificial
