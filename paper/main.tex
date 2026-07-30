@@ -172,9 +172,10 @@ The contributions of this paper are as follows:
 \subsection{Adaptive Traffic Signal Control}
 
 Adaptive traffic signal control (ATSC) has long been studied as an
-alternative to fixed-time plans. Classical systems such as SCOOT[] and
-SCATS[] adjust signal splits and offsets using detector measurements and
-pre-computed lookup tables. These systems improve upon static timing plans,
+alternative to fixed-time plans. Classical systems such as
+SCOOT~\cite{hunt1982scoot} and SCATS~\cite{sims1980scats} adjust signal
+splits and offsets using detector measurements and pre-computed lookup
+tables. These systems improve upon static timing plans,
 but they depend on hand-engineered rules that do not generalize well to
 unseen demand patterns or unfamiliar network layouts. Later actuated and
 self-organizing control methods introduced detector-triggered green
@@ -217,10 +218,12 @@ learning by sampling high-error transitions more frequently; such
 algorithmic refinements are broadly orthogonal to architectural choices and
 can be combined with specialized policy structures such as the one proposed
 here rather than competing with them. At the network level, multi-agent RL
-frameworks~\cite{chu2020multiagent} scale to large networks by training
-independent per-junction agents, while pressure-based formulations such as
-max-pressure control~\cite{wei2019presslight} encode queue imbalance
-directly into the state representation to promote network-level stability.
+frameworks~\cite{chu2020multiagent,eltantawy2013marlin} scale to large
+networks by training independent per-junction agents, while pressure-based
+formulations such as max-pressure
+control~\cite{varaiya2013maxpressure,wei2019presslight} encode queue
+imbalance directly into the state representation to promote network-level
+stability.
 Transfer learning approaches~\cite{mannion2018transfer} reduce sample
 complexity in new environments by reusing representations learned in a
 source domain. Mixture-of-experts architectures~\cite{jacobs1991adaptive}
@@ -429,8 +432,8 @@ $\mathcal{D},\,\mathcal{D}_k$ & Shared replay buffer / regime-$k$ subset
 
 \subsection{Problem Formulation}
 
-We model adaptive traffic signal control as a Markov decision process (MDP)
-$(S, A, P, R, \gamma)$.
+We model adaptive traffic signal control as a Markov decision process
+(MDP) $(S, A, P, R, \gamma)$~\cite{suttonbarto2018}.
 
 \textbf{State space $S$:}
 \[
@@ -454,7 +457,8 @@ remaining low-dimensional enough for stable DQN training.
 green) and $a=1$ (EW green).
 
 \textbf{Transition dynamics $P$:} $P(s'\mid s,a)$ is determined by
-stochastic vehicle arrival processes and network routing in SUMO. It is not
+stochastic vehicle arrival processes and network routing in
+SUMO~\cite{lopez2018microscopic,krajzewicz2012sumo}. It is not
 known analytically; the agent learns purely from sampled $(s,a,r,s')$
 transitions stored in a replay buffer $\mathcal{D}$.
 
@@ -609,7 +613,8 @@ action is selected.}
 \subsection{Training Objective}
 
 The training objective is grounded in temporal difference (TD)
-learning~\cite{mnih2015human}. Each Q-head $k$ is trained independently, on
+learning~\cite{watkins1992qlearning,mnih2015human}. Each Q-head $k$ is
+trained independently, on
 transitions drawn from its regime-specific subset $\mathcal{D}_k \subseteq
 \mathcal{D}$ of the shared replay buffer $\mathcal{D}$, by minimizing the
 mean-squared TD error:
@@ -631,7 +636,8 @@ network from chasing a moving target.
 All Q-heads draw from the same underlying replay buffer $\mathcal{D}$, but
 each is trained only on its assigned regime subset $\mathcal{D}_k$ and
 maintains independent parameter sets $\theta_k$ and target networks
-$\theta_k^{-}$. Training uses Adam (learning rate $10^{-3}$ for
+$\theta_k^{-}$. Training uses Adam~\cite{kingma2015adam} (learning rate
+$10^{-3}$ for
 Stages~1--3; $5\times10^{-5}$ for fine-tuning in Stages~4--5) and
 $\epsilon$-greedy exploration decaying from 1.0 to 0.05 (from 0.3 to 0.05
 for fine-tuning stages).
@@ -1478,9 +1484,9 @@ Several directions emerge from this progressive development:
           formulations jointly optimizing waiting time and throughput could
           reduce the residual $\approx\!11\%$ throughput gap.
     \item \textit{Explicit Multi-Agent Coordination:} Graph neural networks
-          or attention mechanisms for inter-agent communication could
-          enable corridor-level coordination while maintaining
-          waiting-time gains.
+          or attention mechanisms for inter-agent
+          communication~\cite{wei2019colight} could enable corridor-level
+          coordination while maintaining waiting-time gains.
     \item \textit{Hierarchical Policy Learning:} A corridor-level policy
           coordinating junction-level agents could yield system-level
           benefits beyond individual junction optimization.
@@ -1533,8 +1539,9 @@ The authors gratefully acknowledge the Indian Institute of Information
 Technology, Naya Raipur (IIIT-NR) for its institutional support, and thank
 Avantika Singh for her guidance and contributions to this work. The authors
 also acknowledge the open-source reinforcement learning and traffic
-simulation communities. Special thanks to the developers of PyTorch,
-NumPy, SUMO, and related scientific computing frameworks.
+simulation communities. Special thanks to the developers of
+PyTorch~\cite{paszke2019pytorch}, NumPy, SUMO~\cite{lopez2018microscopic},
+and related scientific computing frameworks.
 
 % ---------------------------------------------------------------
 % References
@@ -1611,6 +1618,67 @@ A.~Haydari and Y.~Yilmaz,
 A survey,''
 \textit{IEEE Trans.\ Intell.\ Transp.\ Syst.}, vol.~23, no.~1,
 pp.~11--32, Jan.\ 2022.
+
+\bibitem{suttonbarto2018}
+R.~S.~Sutton and A.~G.~Barto,
+\textit{Reinforcement Learning: An Introduction}, 2nd ed.
+Cambridge, MA, USA: MIT Press, 2018.
+
+\bibitem{watkins1992qlearning}
+C.~J.~C.~H.~Watkins and P.~Dayan,
+``Q-learning,''
+\textit{Mach. Learn.}, vol.~8, no.~3--4, pp.~279--292, May 1992.
+
+\bibitem{hunt1982scoot}
+P.~B.~Hunt, D.~I.~Robertson, R.~D.~Bretherton, and M.~C.~Royle,
+``The SCOOT on-line traffic signal optimisation technique,''
+\textit{Traffic Eng.\ Control}, vol.~23, no.~4, pp.~190--192, Apr.\ 1982.
+
+\bibitem{sims1980scats}
+A.~G.~Sims and K.~W.~Dobinson,
+``The Sydney coordinated adaptive traffic (SCAT) system philosophy and
+benefits,''
+\textit{IEEE Trans.\ Veh.\ Technol.}, vol.~29, no.~2, pp.~130--137,
+May 1980.
+
+\bibitem{varaiya2013maxpressure}
+P.~Varaiya,
+``Max pressure control of a network of signalized intersections,''
+\textit{Transp.\ Res.\ Part C, Emerg.\ Technol.}, vol.~36, pp.~177--195,
+Nov.\ 2013.
+
+\bibitem{eltantawy2013marlin}
+S.~El-Tantawy, B.~Abdulhai, and H.~Abdelgawad,
+``Multiagent reinforcement learning for integrated network of adaptive
+traffic signal controllers (MARLIN-ATSC): Methodology and large-scale
+application on downtown Toronto,''
+\textit{IEEE Trans.\ Intell.\ Transp.\ Syst.}, vol.~14, no.~3,
+pp.~1140--1150, Sep.\ 2013.
+
+\bibitem{kingma2015adam}
+D.~P.~Kingma and J.~Ba,
+``Adam: A method for stochastic optimization,''
+in \textit{Proc.\ Int.\ Conf.\ Learn.\ Represent.\ (ICLR)}, 2015.
+
+\bibitem{paszke2019pytorch}
+A.~Paszke \textit{et al.},
+``PyTorch: An imperative style, high-performance deep learning library,''
+in \textit{Proc.\ Adv.\ Neural Inf.\ Process.\ Syst.\ (NeurIPS)}, 2019,
+pp.~8024--8035.
+
+\bibitem{wei2019colight}
+H.~Wei \textit{et al.},
+``CoLight: Learning network-level cooperation for traffic signal
+control,''
+in \textit{Proc.\ ACM Int.\ Conf.\ Inf.\ Knowl.\ Manage.\ (CIKM)}, 2019,
+pp.~1913--1922.
+
+\bibitem{krajzewicz2012sumo}
+D.~Krajzewicz, J.~Erdmann, M.~Behrisch, and L.~Bieker,
+``Recent development and applications of SUMO -- Simulation of Urban
+MObility,''
+\textit{Int.\ J.\ Adv.\ Syst.\ Meas.}, vol.~5, no.~3\&4, pp.~128--138,
+2012.
 
 \end{thebibliography}
 
