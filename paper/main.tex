@@ -12,9 +12,6 @@
 \usepackage{array}
 \usepackage{stfloats}
 \usepackage{url}
-\usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows.meta, positioning,
-                fit, backgrounds, calc}
 
 \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
 
@@ -106,39 +103,11 @@ conditions, but it typically underperforms a policy specialized for each
 regime~\cite{chu2020multiagent}.
 
 % ------------------------------------------------------------------
-% FIGURE 1 — TikZ traffic regimes diagram (no image file needed)
+% FIGURE 1 — traffic regimes diagram   IMAGE: fig1RL.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
 \centering
-\begin{tikzpicture}[
-    regime/.style={
-        rectangle, rounded corners=4pt, draw=black, thick,
-        text width=1.75cm, align=center, minimum height=2.4cm,
-        font=\footnotesize, inner sep=3pt
-    },
-    arrow/.style={->, thick, >=Stealth,
-                  shorten >=1pt, shorten <=1pt},
-    lbl/.style={font=\scriptsize\itshape}
-]
-\node[regime, fill=green!20] (low) {
-    \textbf{Low}\\[2pt]\textit{Free Flow}\\[4pt]
-    Queue $\leq 3$\\Wait $\leq 10$\,s\\[4pt]
-    Sparse arrivals; minimal delay};
-\node[regime, fill=yellow!30, right=0.7cm of low] (med) {
-    \textbf{Medium}\\[2pt]\textit{Transitional}\\[4pt]
-    Queue $\leq 8$\\Wait $\leq 25$\,s\\[4pt]
-    Moderate queues; mixed flow};
-\node[regime, fill=red!20, right=0.7cm of med] (high) {
-    \textbf{High}\\[2pt]\textit{Saturated}\\[4pt]
-    Queue $> 8$\\Wait $> 25$\,s\\[4pt]
-    Spillback risk; heavy congestion};
-\draw[arrow] (low.east) -- node[above,lbl]{demand} (med.west);
-\draw[arrow] (med.east) -- node[above,lbl]{rises}  (high.west);
-\node[font=\scriptsize\itshape, align=center, below=0.4cm of med,
-      text width=7.4cm]
-    {$\longleftarrow$ Single monolithic policy cannot optimally
-     serve all regimes $\longrightarrow$};
-\end{tikzpicture}
+\includegraphics[width=3.4in]{fig1RL.png}
 \caption{Three operational regimes at a signalized intersection. Each regime
 is characterized by a distinct queue length and waiting-time range and
 therefore requires a different control strategy. A single monolithic policy
@@ -290,58 +259,11 @@ specific architectural change introduced at each stage. Fig.~\ref{fig:system_ove
 information flow shared across all five stages.
 
 % ------------------------------------------------------------------
-% FIGURE 2 — TikZ generic system overview (no image file needed)
+% FIGURE 2 — generic system overview   IMAGE: fig2RL.png
 % ------------------------------------------------------------------
-\begin{figure}[!t]
+\begin{figure*}[!t]
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[
-    mainbox/.style={rectangle, draw=black, thick, rounded corners=4pt,
-        fill=blue!12, text width=1.9cm, align=center,
-        minimum height=0.9cm, font=\small},
-    envbox/.style={rectangle, draw=black, thick, rounded corners=4pt,
-        fill=orange!20, text width=1.9cm, align=center,
-        minimum height=0.9cm, font=\small},
-    headbox/.style={rectangle, draw=black, rounded corners=3pt,
-        fill=green!18, text width=1.15cm, align=center,
-        minimum height=0.8cm, font=\scriptsize},
-    gatebox/.style={rectangle, draw=black, thick, rounded corners=4pt,
-        fill=purple!12, text width=1.7cm, align=center,
-        minimum height=0.9cm, font=\small},
-    arrow/.style={->, thick, >=Stealth,
-                  shorten >=2pt, shorten <=2pt}
-]
-% main horizontal pipeline
-\node[envbox]  (env)   {SUMO\\Environment};
-\node[mainbox, right=0.7cm of env]   (state) {State $s$\\(9-dim vector)};
-\node[mainbox, right=0.7cm of state] (enc)
-    {Shared\\Encoder\\FC(256)-FC(256)};
-% classifier above, heads below
-\node[mainbox, above right=0.6cm and 0.7cm of enc] (cls)
-    {Regime\\Classifier\\$(p_1,p_2,p_3)$};
-\node[headbox, below right=0.6cm and 0.4cm of enc] (qL) {Q-Head\\Low};
-\node[headbox, right=0.2cm of qL] (qM) {Q-Head\\Med};
-\node[headbox, right=0.2cm of qM] (qH) {Q-Head\\High};
-% gate aligned with encoder, to the right of classifier/heads
-\node[gatebox, right=3.4cm of enc] (gate)
-    {Soft Gating\\$Q_{\text{blend}}$};
-\node[mainbox, right=0.7cm of gate] (act)
-    {$\arg\max_a Q_{\text{blend}}$\\Action};
-\node[envbox, below=1.0cm of state] (rew)
-    {Reward $r$\\Next state $s'$};
-% arrows
-\draw[arrow] (env)   -- (state);
-\draw[arrow] (state) -- (enc);
-\draw[arrow] (enc) |- (cls.west);
-\draw[arrow] (enc) |- (qL.west);
-\draw[arrow] (cls.east) -| (gate.north);
-\draw[arrow] (qH.east)  -| (gate.south);
-\draw[arrow] (gate) -- (act);
-\draw[arrow] (act.south) |- (rew.east);
-\draw[arrow] (rew.west)  -| (env.south);
-\node[font=\scriptsize, below=0.1cm of qM]
-    {\textit{regime-specialized}};
-\end{tikzpicture}}
+\includegraphics[width=6.8in]{fig2RL.png}
 \caption{Generic MH-DQN system architecture and information flow, shared
 across all five stages. The SUMO environment produces a 9-dimensional state
 encoded by the shared trunk. The regime classifier generates soft weights;
@@ -349,7 +271,7 @@ three specialized Q-heads compute per-regime Q-values; soft gating blends
 them into $Q_{\text{blend}}$; and the resulting greedy action is applied to
 the environment, producing the next state and reward.}
 \label{fig:system_overview}
-\end{figure}
+\end{figure*}
 
 \subsection{Overall Development Pipeline}
 
@@ -555,60 +477,20 @@ the decreasing phase-change ratio observed across stages: $2.32\times$
 (Stage~5).
 
 % ------------------------------------------------------------------
-% FIGURE 3 — TikZ detailed MH-DQN architecture (no image file needed)
+% FIGURE 3 — detailed MH-DQN architecture   IMAGE: fig3RL.png
 % ------------------------------------------------------------------
-\begin{figure}[!t]
+\begin{figure*}[!t]
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[
-    inputbox/.style={rectangle,draw,fill=gray!15,rounded corners=3pt,
-        text width=1.5cm,align=center,minimum height=0.8cm,font=\small},
-    encbox/.style={rectangle,draw,fill=blue!15,rounded corners=3pt,
-        text width=2.3cm,align=center,minimum height=0.9cm,font=\small},
-    clsbox/.style={rectangle,draw,fill=purple!15,rounded corners=3pt,
-        text width=1.9cm,align=center,minimum height=1.0cm,font=\small},
-    headbox/.style={rectangle,draw,fill=green!15,rounded corners=3pt,
-        text width=1.3cm,align=center,minimum height=1.3cm,font=\small},
-    gatebox/.style={rectangle,draw,fill=orange!15,rounded corners=3pt,
-        text width=2.0cm,align=center,minimum height=1.0cm,font=\small},
-    actbox/.style={rectangle,draw,fill=red!10,rounded corners=3pt,
-        text width=1.5cm,align=center,minimum height=0.8cm,font=\small},
-    arrow/.style={->,thick,>=Stealth,shorten >=2pt,shorten <=2pt}
-]
-\node[inputbox] (inp) {State $s$\\(9-dim)};
-\node[encbox, right=0.6cm of inp] (enc)
-    {Shared Encoder\\FC(256)-ReLU\\FC(256)-ReLU};
-% classifier above encoder-right, heads below
-\node[clsbox, above right=0.6cm and 0.7cm of enc] (cls)
-    {Regime\\Classifier\\$128{\to}64{\to}3$\\Softmax\\$(p_1,p_2,p_3)$};
-\node[headbox, below right=0.6cm and 0.5cm of enc] (qL)
-    {\textbf{Q-Head}\\Low\\FC(128)\\$\to 2$ Q-vals};
-\node[headbox, right=0.25cm of qL] (qM)
-    {\textbf{Q-Head}\\Med\\FC(128)\\$\to 2$ Q-vals};
-\node[headbox, right=0.25cm of qM] (qH)
-    {\textbf{Q-Head}\\High\\FC(128)\\$\to 2$ Q-vals};
-% gate to the right, between classifier and heads vertically
-\node[gatebox, right=3.9cm of enc] (gate)
-    {Soft Gating\\$Q_{\text{blend}}=\sum_k p_k Q_k$};
-\node[actbox, right=0.6cm of gate] (act)
-    {$\arg\max_a Q_{\text{blend}}$\\Action $a$};
-\draw[arrow] (inp) -- (enc);
-\draw[arrow] (enc) |- (cls.west);
-\draw[arrow] (enc) |- (qL.west);
-\draw[arrow] (cls.east) -| (gate.north);
-\draw[arrow] (qH.east)  -| (gate.south);
-\draw[arrow] (gate) -- (act);
-\node[font=\scriptsize, below=0.12cm of qM]
-    {\textit{independent $\theta_k$ and $\theta_k^{-}$ per head}};
-\end{tikzpicture}}
+\includegraphics[width=6.8in]{fig3RL.png}
 \caption{Detailed MH-DQN architecture. The shared encoder extracts a common
 feature representation. The regime classifier outputs soft weights
-$(p_1,p_2,p_3)$. Three independent Q-heads, each with parameters $\theta_k$
-and target network $\theta_k^{-}$, produce regime-specific Q-values. Soft
-gating forms $Q_{\text{blend}}$ as a weighted sum, from which the greedy
-action is selected.}
+$(p_1,p_2,p_3)$. Three independent Q-heads, each with parameters $\theta_k$,
+sampling from its own replay subset $\mathcal{D}_k$ and synchronized against
+a target network $\theta_k^{-}$ every 100 steps, produce regime-specific
+Q-values. Soft gating forms $Q_{\text{blend}}$ as a weighted sum, from which
+the greedy action is selected.}
 \label{fig:mhdqn_arch}
-\end{figure}
+\end{figure*}
 
 \subsection{Training Objective}
 
