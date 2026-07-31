@@ -210,3 +210,35 @@ presentation, metadata, or a technical/formatting fix.
   `\@IEEEbiographyTOCentrynotmade`, the `IEEEbiography` counter) was
   checked against the upstream class source to confirm the override
   reproduces the original behavior exactly, minus the stretch.
+
+## 13. Figures 1-3 replaced with generated architecture diagrams
+**Commit:** `862b6ed`
+
+- Added three externally generated images — `fig1RL.png` (traffic
+  regime classification), `fig2RL.png` (generic MH-DQN system
+  overview), `fig3RL.png` (detailed MH-DQN architecture, including
+  per-head replay buffer subsets and target-network sync) — and swapped
+  them in for the hand-drawn TikZ versions of the same three figures
+  that previously lived directly in `main.tex`.
+- Verified each image's content against the section it illustrates
+  before wiring it in: Figure 1 matches the Low/Medium/High regime
+  description in the Introduction (with the numeric queue/wait
+  thresholds deliberately omitted from the image, since those are
+  already given in prose in Section III); Figure 2 matches the
+  system-overview description in Section III-C; Figure 3 matches the
+  MH-DQN architecture description and, in its added replay-subset and
+  target-sync detail, the Training Objective subsection (Eq. 3 and the
+  100-step target-sync interval already described in the text).
+- Figures 2 and 3 were promoted from single-column `figure` floats to
+  full-width `figure*` floats (`width=6.8in`, matching the convention
+  already used elsewhere for dense images such as `training_curves.png`)
+  since the new images carry more detail — legends, per-head math
+  notation — than a single 3.4in column renders legibly.
+- Figure 3's caption was extended by one clause to mention the replay
+  subset $\mathcal{D}_k$ and 100-step target-network sync now shown
+  explicitly in the image; both details were already present in the
+  paper's running text, so this is a caption clarification, not a new
+  claim.
+- Removed `\usepackage{tikz}` and `\usetikzlibrary{...}` from the
+  preamble, since after this change no figure in the document draws
+  with TikZ anymore.
