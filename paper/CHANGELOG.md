@@ -409,3 +409,54 @@ presentation, metadata, or a technical/formatting fix.
   pairing is still intact and untouched by this change, and all
   figure/table/bibliography LaTeX environments remain balanced
   (14 `\begin{figure}` / `\end{figure}` pairs, matching the 14 labels).
+
+## 18. Original Figures 8 and 18 removed, plus original Table 2
+**Commits:** `e67b1b8`, `8b550ba`
+
+- This request used figure/table numbers rather than labels, and by
+  this point in the session the paper's own figure numbering had
+  already shifted twice (18 figures originally, then 14 after entry
+  \#17). Asked the user to confirm which numbering they meant before
+  touching anything, since "Figure 18" no longer existed under the
+  current (post-\#17) numbering; they confirmed the *original* 1-18
+  numbering, from before any figure was ever removed this session —
+  i.e., the last point at which both Figure 8 and Figure 18 existed
+  together.
+- **Original Figure 8** (`fig:regime`, "Traffic regime distribution
+  during training", Stage 2) removed. The Stage 2 results paragraph
+  had framed this as the first of "three further figures" explaining
+  why the MH-DQN reaches its result; rewrote it to state the
+  32%/41.8%/26.2% low/medium/high training-time split as a plain
+  finding from the training logs (no figure reference), and
+  renumbered the remaining two points — classifier accuracy
+  (`fig:confusion`) and head specialization (`fig:specialization`) —
+  from Second/Third to First/Second.
+- **Original Figure 18** (`fig:episodes_hab`, "Per-episode comparison
+  over 5 evaluation episodes", Stage 5 corridor) removed. The sentence
+  that pointed to it now states the same finding as prose grounded in
+  Table VIII (`tab:results_hab`): the MH-DQN beats the fixed-time
+  baseline on waiting time and queue length in all 5 evaluation
+  episodes, with no reversals.
+- **Original Table 2** (`tab:stages`, "Summary of Five Development
+  Stages") removed, per a mid-turn follow-up request specifying the
+  original table numbering (before any removals — this was the first
+  table ever removed this session, so original and current numbering
+  still coincided). Folded its five rows (stage name, environment,
+  episode count) into the lead sentence of "Overall Development
+  Pipeline" as prose; the following "Episode budget rationale"
+  paragraph already explained the 200-vs-100 episode split and needed
+  no change.
+- Renumbered the `% FIGURE N` source comments for all 12 remaining
+  figures (down from 14) to stay sequential.
+- Two more image files became unreferenced by the figure removals
+  (`WhatsApp Image 2026-02-10 at 9.05.32 AM.jpeg`, the Figure 8
+  source, and `per_episode_comparison.png`, the Figure 18 source) and
+  were left in the repository for the same reason as entry \#17's
+  four files: deleting files wasn't part of what was asked.
+- Verified with the same scripted checks as entries \#15-17: every
+  `\ref{fig:...}`/`\label{fig:...}` pair resolves in both directions
+  (12 defined, 12 used, no orphans), every `\ref{tab:...}`/
+  `\label{tab:...}` pair resolves in both directions (11 tables
+  remain, down from 12, no orphans), citations are untouched (18
+  defined, 18 used), and all figure/table/bibliography LaTeX
+  environments remain balanced.
