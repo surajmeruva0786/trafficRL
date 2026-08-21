@@ -512,3 +512,43 @@ presentation, metadata, or a technical/formatting fix.
 - Verified with the existing scripted checks: figure labels/refs (12/12,
   no orphans), table labels/refs (11/11, no orphans), citations (18/18,
   untouched), and all LaTeX environments remain balanced.
+
+## 20. Section III restructured into "Problem Formulation and Notation"
+**Commit:** `128568f`
+
+- The initial request for this change ("after C, before B, add a
+  subsection 4") was internally contradictory under the section's
+  actual original subsection order (A=Overall Development Pipeline,
+  B=Notation, C=Problem Formulation, D=Multi-Head DQN Architecture,
+  E=Training Objective) — B already precedes C, so a new subsection
+  can't be both after C and before B without something else moving.
+  Asked the user to clarify with concrete candidate orderings before
+  changing anything; they clarified in their own words instead, which
+  resolved cleanly to: rename the section, keep A/B/C exactly as they
+  are, and turn the old subsection D into a new subsection D that
+  itself contains the old D and E as nested sub-subsections.
+- Renamed Section III from "System Architecture and Methodology" to
+  "Problem Formulation and Notation" (`\label{sec:arch}` left
+  unchanged). Subsections A (Overall Development Pipeline), B
+  (Notation), and C (Problem Formulation) are untouched.
+- Replaced subsection D's title, "Multi-Head DQN Architecture," with a
+  new subsection D titled "System Architecture and Methodology" (the
+  section's old name, now demoted one level), with a one-sentence
+  lead-in ("The system architecture and its training methodology are
+  described in two parts below..."). The former subsections D and E
+  now live underneath it as subsubsections, content unchanged:
+  ```
+  III. Problem Formulation and Notation        [renamed section]
+    A. Overall Development Pipeline             [unchanged]
+    B. Notation                                 [unchanged]
+    C. Problem Formulation                      [unchanged]
+    D. System Architecture and Methodology      [new subsection]
+       1) Multi-Head DQN Architecture           [was subsection D]
+       2) Training Objective                    [was subsection E]
+  ```
+- Confirmed via search that no other prose in the paper refers to
+  either the old or new section/subsection titles by name, so nothing
+  else needed updating for consistency.
+- Verified with the existing scripted checks: figure labels/refs
+  (12/12, no orphans), table labels/refs (11/11, no orphans), citations
+  (18/18, untouched), and all LaTeX environments remain balanced.
