@@ -460,3 +460,55 @@ presentation, metadata, or a technical/formatting fix.
   remain, down from 12, no orphans), citations are untouched (18
   defined, 18 used), and all figure/table/bibliography LaTeX
   environments remain balanced.
+
+## 19. Stages 1-5 nested under a new "Experimental Results" section
+**Commit:** `aa5a959`
+
+- The five stages were previously five separate top-level sections
+  (Section IV "Stage 1" through Section VIII "Stage 5"), each with its
+  own `\subsection` breakdown underneath. Converted each `\section{Stage
+  N -- ...}` into a `\subsection{Stage N -- ...}`, all nested under one
+  new `\section{Experimental Results}` (`\label{sec:results}`) placed
+  where "Stage 1" used to start. Added a one-sentence lead-in to the
+  new section ("This section presents the experimental results across
+  the five progressive development stages...").
+- Because a subsection can't contain another subsection at the same
+  level without flattening the hierarchy, every subsection that used to
+  live directly under a "Stage N" section was demoted one level, from
+  `\subsection` to `\subsubsection`: Environment and Architecture / Key
+  Observations (Stage 1); Simulation Environment / Results /
+  Regime-Specific Performance (Stage 2); Environment and Motivation /
+  Results / Key Observations (Stage 3); Corridor Environment and SUMO
+  Modeling / Transfer Learning Setup / Results (Stage 4); Fine-Tuning
+  Protocol and Reward Adjustments / Training Dynamics / Evaluation
+  Results / Junction-Level Analysis (Stage 5). The resulting hierarchy
+  is:
+  ```
+  Experimental Results
+    Stage 1 -- Baseline Standard DQN
+      Environment and Architecture / Key Observations
+    Stage 2 -- Multi-Head DQN (Single Intersection)
+      Simulation Environment / Results / Regime-Specific Performance
+    Stage 3 -- Grid Network (Nine Intersections)
+      Environment and Motivation / Results / Key Observations
+    Stage 4 -- Real-World Corridor: Direct Transfer
+      Corridor Environment and SUMO Modeling / Transfer Learning
+      Setup / Results
+    Stage 5 -- Fine-Tuned MH-DQN (Real-World Corridor)
+      Fine-Tuning Protocol and Reward Adjustments / Training
+      Dynamics / Evaluation Results / Junction-Level Analysis
+  ```
+- "Cross-Stage Analysis and Discussion," the section immediately after
+  Stage 5, was deliberately left as its own top-level section,
+  unchanged — the request was specifically about the five Stage
+  sections, and that section's own two subsections (Consolidated
+  Cross-Stage Results, Discussion) already sit one level below a
+  section, same as before.
+- All `\label{sec:stage1}` through `\label{sec:stage5}` were preserved
+  as-is on their headings (now at subsection level); nothing in the
+  paper cross-references sections via `\ref{sec:...}` and there are no
+  hardcoded "Section N" mentions in the prose, so this renumbering
+  doesn't break or require updating anything else.
+- Verified with the existing scripted checks: figure labels/refs (12/12,
+  no orphans), table labels/refs (11/11, no orphans), citations (18/18,
+  untouched), and all LaTeX environments remain balanced.
