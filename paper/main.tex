@@ -263,23 +263,14 @@ advancing through multi-head specialization, multi-agent grid scaling, and
 ultimately real-world corridor deployment with fine-tuning. This staged
 approach enables validation at each level of complexity before proceeding to
 the next, so that observed performance gains can be attributed to the
-specific architectural change introduced at each stage. Fig.~\ref{fig:system_overview} presents the generic system architecture and
-information flow shared across all five stages.
-
-% ------------------------------------------------------------------
-% FIGURE 2 — generic system overview   IMAGE: fig2RL.png
-% ------------------------------------------------------------------
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=6.8in]{fig2RL.png}
-\caption{Generic MH-DQN system architecture and information flow, shared
-across all five stages. The SUMO environment produces a 9-dimensional state
-encoded by the shared trunk. The regime classifier generates soft weights;
-three specialized Q-heads compute per-regime Q-values; soft gating blends
-them into $Q_{\text{blend}}$; and the resulting greedy action is applied to
-the environment, producing the next state and reward.}
-\label{fig:system_overview}
-\end{figure*}
+specific architectural change introduced at each stage. Across all five
+stages, the same information flow applies: the SUMO environment produces a
+9-dimensional state, a shared trunk encodes it, a regime classifier
+generates soft weights, three specialized Q-heads compute per-regime
+Q-values, soft gating blends them into $Q_{\text{blend}}$, and the
+resulting greedy action is applied back to the environment, producing the
+next state and reward; this architecture is presented in full detail below
+(Fig.~\ref{fig:mhdqn_arch}).
 
 \subsection{Overall Development Pipeline}
 
@@ -485,7 +476,7 @@ the decreasing phase-change ratio observed across stages: $2.32\times$
 (Stage~5).
 
 % ------------------------------------------------------------------
-% FIGURE 3 — detailed MH-DQN architecture   IMAGE: fig3RL.png
+% FIGURE 2 — detailed MH-DQN architecture   IMAGE: fig3RL.png
 % ------------------------------------------------------------------
 \begin{figure*}[!t]
 \centering
@@ -554,7 +545,7 @@ $\epsilon$: $1.0\!\to\!0.05$, learning rate: $0.0001$, $\gamma$: $0.99$.
 Fixed-time baseline: 30\,s NS / 30\,s EW.
 
 % ------------------------------------------------------------------
-% FIGURE 4 — SUMO snapshot Stages 1 & 2   IMAGE: stage1_2.png
+% FIGURE 3 — SUMO snapshot Stages 1 & 2   IMAGE: stage1_2.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
 \centering
@@ -642,7 +633,7 @@ Phase Changes       & $253.3$  & $109.0$  \\
 \end{table}
 
 % ------------------------------------------------------------------
-% FIGURE 5 — Bar comparison Stage 2
+% FIGURE 4 — Bar comparison Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 11.03.58 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure*}[!t]
@@ -653,49 +644,23 @@ six metrics (Stage~2, single intersection).}
 \label{fig:comparison}
 \end{figure*}
 
-% ------------------------------------------------------------------
-% FIGURE 6 — Episode-by-episode comparison Stage 2
-% IMAGE: WhatsApp Image 2026-02-10 at 11.03.54 AM.jpeg
-% ------------------------------------------------------------------
-\begin{figure}[!t]
-\centering
-\includegraphics[width=3.4in]{"WhatsApp Image 2026-02-10 at 11.03.54 AM.jpeg"}
-\caption{Episode-by-episode comparison of reward, waiting time, and
-throughput over 10 evaluation episodes (Stage~2).}
-\label{fig:episodes}
-\end{figure}
-
-% ------------------------------------------------------------------
-% FIGURE 7 — Distribution Stage 2
-% IMAGE: WhatsApp Image 2026-02-10 at 11.03.52 AM.jpeg
-% ------------------------------------------------------------------
-\begin{figure}[!t]
-\centering
-\includegraphics[width=3.4in]{"WhatsApp Image 2026-02-10 at 11.03.52 AM.jpeg"}
-\caption{Distribution of episode rewards, waiting time, and throughput
-(Stage~2, single intersection).}
-\label{fig:distribution}
-\end{figure}
-
-Before turning to the aggregate numbers in Table~\ref{tab:results_sim},
-Fig.~\ref{fig:episodes} and Fig.~\ref{fig:distribution} address a
-reasonable question a careful reader might ask: are the averages reported
-above representative, or do they hide occasional episodes where the
-MH-DQN performs poorly? Fig.~\ref{fig:episodes} tracks reward, waiting
-time, and throughput across all 10 evaluation episodes individually, and
-the fixed-time baseline appears as a flat line in each panel, since a
-deterministic, demand-blind controller produces identical results every
-time it is run. The MH-DQN's waiting time, by contrast, stays consistently
-far below that flat baseline in every one of the 10 episodes, with no
-exceptions. Fig.~\ref{fig:distribution} makes the same point as box
-plots: the MH-DQN's waiting-time and throughput distributions do not
-overlap at all with the fixed-time baseline's single value. Together,
-these two figures confirm that the gains reported in
+Before turning to the aggregate numbers in Table~\ref{tab:results_sim}, it
+is worth addressing a reasonable question a careful reader might ask: are
+the averages reported above representative, or do they hide occasional
+episodes where the MH-DQN performs poorly? Across all 10 evaluation
+episodes, the MH-DQN's waiting time stays consistently far below the
+fixed-time baseline in every episode, with no exceptions; because the
+fixed-time controller is deterministic and demand-blind, it produces
+identical results on every run, so its per-episode values form a flat
+reference line rather than a distribution. The MH-DQN's waiting-time and
+throughput values likewise do not overlap at all with the fixed-time
+baseline's single value across the 10 episodes. Together, these
+observations confirm that the gains reported in
 Table~\ref{tab:results_sim} are a stable property of the learned policy,
 not an artefact of averaging over a few unusually good runs.
 
 % ------------------------------------------------------------------
-% FIGURE 8 — Regime distribution Stage 2
+% FIGURE 5 — Regime distribution Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 9.05.32 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -733,7 +698,7 @@ medium-, and high-regime heads do learn distinguishable behaviors, even
 though the degree of divergence at any single point in training varies.
 
 % ------------------------------------------------------------------
-% FIGURE 9 — Confusion matrix training Stage 2
+% FIGURE 6 — Confusion matrix training Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 9.05.37 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -745,7 +710,7 @@ though the degree of divergence at any single point in training varies.
 \end{figure}
 
 % ------------------------------------------------------------------
-% FIGURE 10 — Confusion matrix evaluation Stage 2
+% FIGURE 7 — Confusion matrix evaluation Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 10.48.34 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -757,19 +722,7 @@ classification accuracy (Stage~2).}
 \end{figure}
 
 % ------------------------------------------------------------------
-% FIGURE 11 — Training dynamics Stage 2
-% IMAGE: WhatsApp Image 2026-02-10 at 9.05.24 AM.jpeg
-% ------------------------------------------------------------------
-\begin{figure}[!t]
-\centering
-\includegraphics[width=3.4in]{"WhatsApp Image 2026-02-10 at 9.05.24 AM.jpeg"}
-\caption{Training dynamics: episode rewards, Q-loss, classifier loss,
-waiting time, and classifier accuracy over 200 episodes (Stage~2).}
-\label{fig:training}
-\end{figure}
-
-% ------------------------------------------------------------------
-% FIGURE 12 — Head specialization Stage 2
+% FIGURE 8 — Head specialization Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 9.05.42 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -782,40 +735,39 @@ three regime heads' policies diverge sharply.}
 \label{fig:specialization}
 \end{figure}
 
-Fig.~\ref{fig:confusion_train} and Fig.~\ref{fig:training} deserve a
-careful, honest reading, because taken at face value they appear to
-contradict the 100\% evaluation accuracy reported above. The training-time
-confusion matrix (Fig.~\ref{fig:confusion_train}) shows the classifier
-predicting Low, Medium, and High in almost the same proportion (33\%,
-42\%, 25\%) regardless of the true regime, and the classifier-accuracy
-curve in Fig.~\ref{fig:training} stays close to chance level (around
-0.33--0.35) for essentially the entire 200-episode run, even while the
-classifier loss in the same figure collapses to nearly zero within the
-first few episodes. The reason is not that the classifier fails to learn.
-Both of these training-time metrics are running averages computed over
-\emph{every} prediction recorded since episode~1, rather than over a
-recent window. Because the early part of training is dominated by
-near-random exploration ($\epsilon$ close to 1.0) and a classifier that
-has barely begun to learn, a large volume of near-chance predictions
-accumulates early on, and this early data continues to weigh down the
-cumulative average for the rest of the run, even after the classifier has,
-in fact, converged. This is confirmed directly by the evaluation-time
-confusion matrix (Fig.~\ref{fig:confusion}), which is computed only after
-training is complete and shows a perfect diagonal. Read side by side
-rather than in isolation, these figures show that regime classification is
-unreliable during the early, exploratory part of training and only
-becomes fully dependable by the time training finishes, which is exactly
-what the evaluation-time accuracy reflects.
+The training-time confusion matrix (Fig.~\ref{fig:confusion_train})
+deserves a careful, honest reading, because taken at face value it appears
+to contradict the 100\% evaluation accuracy reported above: it shows the
+classifier predicting Low, Medium, and High in almost the same proportion
+(33\%, 42\%, 25\%) regardless of the true regime. The same pattern holds
+in the underlying training logs, where the running classifier-accuracy
+metric stays close to chance level (around 0.33--0.35) for essentially the
+entire 200-episode run, even while the classifier loss over the same run
+collapses to nearly zero within the first few episodes. The reason is not
+that the classifier fails to learn. Both of these training-time metrics
+are running averages computed over \emph{every} prediction recorded since
+episode~1, rather than over a recent window. Because the early part of
+training is dominated by near-random exploration ($\epsilon$ close to 1.0)
+and a classifier that has barely begun to learn, a large volume of
+near-chance predictions accumulates early on, and this early data
+continues to weigh down the cumulative average for the rest of the run,
+even after the classifier has, in fact, converged. This is confirmed
+directly by the evaluation-time confusion matrix (Fig.~\ref{fig:confusion}),
+which is computed only after training is complete and shows a perfect
+diagonal. Read alongside the training-time confusion matrix rather than in
+isolation, this shows that regime classification is unreliable during the
+early, exploratory part of training and only becomes fully dependable by
+the time training finishes, which is exactly what the evaluation-time
+accuracy reflects.
 
-The remaining panels of Fig.~\ref{fig:training} describe the underlying
-training process in more familiar terms. The Q-loss rises briefly as the
-network first begins to bootstrap from its own predictions, then
-gradually falls and settles into a stable, low range past roughly
-episode~80, a standard signature of a value function converging rather
-than diverging or oscillating. Episode reward drifts gently upward over
-the same period, and average waiting time, while noisy from episode to
-episode, shows no worsening trend, together indicating a training run
-that is stable rather than fragile.
+The underlying training logs describe the rest of the training process in
+more familiar terms. The Q-loss rises briefly as the network first begins
+to bootstrap from its own predictions, then gradually falls and settles
+into a stable, low range past roughly episode~80, a standard signature of
+a value function converging rather than diverging or oscillating. Episode
+reward drifts gently upward over the same period, and average waiting
+time, while noisy from episode to episode, shows no worsening trend,
+together indicating a training run that is stable rather than fragile.
 
 \subsection{Regime-Specific Performance}
 
@@ -854,7 +806,7 @@ architecture, the same 9-dimensional state, and the same 2-action space,
 without explicit inter-agent communication. Training: 200 episodes.
 
 % ------------------------------------------------------------------
-% FIGURE 13 — 3×3 grid SUMO layout    IMAGE: stage3.png
+% FIGURE 9 — 3×3 grid SUMO layout    IMAGE: stage3.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
 \centering
@@ -954,7 +906,7 @@ evenly spaced layout:
 \end{itemize}
 
 % ------------------------------------------------------------------
-% FIGURE 14 — Corridor SUMO layout    IMAGE: stage4_5.png
+% FIGURE 10 — Corridor SUMO layout    IMAGE: stage4_5.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
 \centering
@@ -967,7 +919,7 @@ reflects the real-world geometry of the corridor.}
 \end{figure}
 
 % ------------------------------------------------------------------
-% FIGURE 15 — Real-world map          IMAGE: habsiguda_map.jpg
+% FIGURE 11 — Real-world map          IMAGE: habsiguda_map.jpg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
 \centering
@@ -1124,7 +1076,7 @@ Ep.\ 76--100 & $-608.1$ & $978.8$ \\
 \end{table}
 
 % ------------------------------------------------------------------
-% FIGURE 16 — Training curves Stage 5   IMAGE: training_curves.png
+% FIGURE 12 — Training curves Stage 5   IMAGE: training_curves.png
 % ------------------------------------------------------------------
 \begin{figure*}[!t]
 \centering
@@ -1180,7 +1132,7 @@ Phase Changes       & 450.0 & 553.2           & $+22.9\%$ \\
 \end{table}
 
 % ------------------------------------------------------------------
-% FIGURE 17 — Evaluation bar chart Stage 5
+% FIGURE 13 — Evaluation bar chart Stage 5
 % IMAGE: comparison_finetuned.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -1192,7 +1144,7 @@ baseline on the real-world corridor (Stage~5, 2{,}000~veh/hr).}
 \end{figure}
 
 % ------------------------------------------------------------------
-% FIGURE 18 — Per-episode comparison Stage 5
+% FIGURE 14 — Per-episode comparison Stage 5
 % IMAGE: per_episode_comparison.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
