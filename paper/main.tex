@@ -518,11 +518,18 @@ rule in~\eqref{eq:blend}, by contrast, are formulated specifically for the
 MH-DQN architecture proposed in this paper.
 
 % ---------------------------------------------------------------
-\section{Stage 1 --- Baseline Standard DQN}
-\label{sec:stage1}
+\section{Experimental Results}
+\label{sec:results}
 % ---------------------------------------------------------------
 
-\subsection{Environment and Architecture}
+This section presents the experimental results across the five
+progressive development stages, from the single-intersection baseline
+through real-world corridor deployment.
+
+\subsection{Stage 1 --- Baseline Standard DQN}
+\label{sec:stage1}
+
+\subsubsection{Environment and Architecture}
 
 Stage~1 establishes a proof-of-concept using a standard DQN on a simulated
 four-way signalized intersection, shown in Fig.~\ref{fig:sim_stage12}.
@@ -544,7 +551,7 @@ scenario the agent must learn to clear.}
 \label{fig:sim_stage12}
 \end{figure}
 
-\subsection{Key Observations}
+\subsubsection{Key Observations}
 
 The baseline DQN outperformed random exploration but revealed two
 limitations that motivated the multi-head approach: (1) a single policy
@@ -553,19 +560,17 @@ an episode, and (2) reward shaping required explicit balancing between
 throughput and congestion metrics. These observations directly motivated the
 regime-aware architecture introduced in Stage~2.
 
-% ---------------------------------------------------------------
-\section{Stage 2 --- Multi-Head DQN (Single Intersection)}
+\subsection{Stage 2 --- Multi-Head DQN (Single Intersection)}
 \label{sec:stage2}
-% ---------------------------------------------------------------
 
-\subsection{Simulation Environment}
+\subsubsection{Simulation Environment}
 
 Using the same four-way intersection (Fig.~\ref{fig:sim_stage12}), Stage~2
 replaces the standard DQN with the full MH-DQN. The regime classifier
 dynamically routes experiences to the appropriate Q-head during training and
 blends heads during inference.
 
-\subsection{Results}
+\subsubsection{Results}
 
 Table~\ref{tab:results_sim} presents the full performance comparison, and
 it is worth walking through what each row actually means rather than
@@ -744,7 +749,7 @@ reward drifts gently upward over the same period, and average waiting
 time, while noisy from episode to episode, shows no worsening trend,
 together indicating a training run that is stable rather than fragile.
 
-\subsection{Regime-Specific Performance}
+\subsubsection{Regime-Specific Performance}
 
 Consistent mean rewards (0.37--0.39) across all regimes indicate successful
 Q-head specialization. For each regime, the mean per-step reward its head
@@ -767,12 +772,10 @@ rather than merely making the best of an inherently worse situation. The
 similarly sized standard deviations (0.57--0.59) further suggest that no
 regime is disproportionately noisy or unstable relative to the others.
 
-% ---------------------------------------------------------------
-\section{Stage 3 --- Grid Network (Nine Intersections)}
+\subsection{Stage 3 --- Grid Network (Nine Intersections)}
 \label{sec:stage3}
-% ---------------------------------------------------------------
 
-\subsection{Environment and Motivation}
+\subsubsection{Environment and Motivation}
 
 Stage~3 evaluates scalability to a synthetic $3\times3$ grid of nine
 signalized junctions in SUMO, shown in Fig.~\ref{fig:sim_stage3}. Each
@@ -793,7 +796,7 @@ of decentralized multi-agent scalability.}
 \label{fig:sim_stage3}
 \end{figure}
 
-\subsection{Results}
+\subsubsection{Results}
 
 Table~\ref{tab:grid} shows how training unfolds across the 200 episodes. A
 first thing worth noting honestly is that reward stays negative
@@ -843,19 +846,17 @@ Worst (Ep.\ 1)   & $-628.7$ & ---     \\
 \end{tabular}
 \end{table}
 
-\subsection{Key Observations}
+\subsubsection{Key Observations}
 
 Stage~3 confirmed multi-agent scalability but revealed that independent
 phase switching can create throughput bottlenecks at junction interfaces.
 This observation motivated the stronger phase-change penalty introduced in
 Stage~5.
 
-% ---------------------------------------------------------------
-\section{Stage 4 --- Real-World Corridor: Direct Transfer}
+\subsection{Stage 4 --- Real-World Corridor: Direct Transfer}
 \label{sec:stage4}
-% ---------------------------------------------------------------
 
-\subsection{Corridor Environment and SUMO Modeling}
+\subsubsection{Corridor Environment and SUMO Modeling}
 
 The Habsiguda--Nacharam corridor in Hyderabad, India is modeled in
 SUMO~\cite{lopez2018microscopic}. This corridor was selected for two
@@ -908,13 +909,13 @@ Traffic demand is 2{,}000~vehicles/hour (realistic peak). The fixed-time
 baseline uses a 30\,s/30\,s cycle for all junctions (450 phase
 changes/episode), representing the current real-world deployment.
 
-\subsection{Transfer Learning Setup}
+\subsubsection{Transfer Learning Setup}
 
 MH-DQN agents are initialized with Stage~2 pre-trained weights and run
 with: learning rate $0.00005$, $\epsilon$: $0.3\!\to\!0.05$, 100 episodes,
 phase penalty $\lambda=0.05$, minimum green 10\,s.
 
-\subsection{Results}
+\subsubsection{Results}
 
 Table~\ref{tab:results_hab4} summarizes what happens when the Stage~2
 policy is placed on the real-world corridor with no further training. The
@@ -960,12 +961,10 @@ Phase Changes       & 450.0 & 705.2            & $+56.7\%$ \\
 \end{tabular}
 \end{table}
 
-% ---------------------------------------------------------------
-\section{Stage 5 --- Fine-Tuned MH-DQN (Real-World Corridor)}
+\subsection{Stage 5 --- Fine-Tuned MH-DQN (Real-World Corridor)}
 \label{sec:stage5}
-% ---------------------------------------------------------------
 
-\subsection{Fine-Tuning Protocol and Reward Adjustments}
+\subsubsection{Fine-Tuning Protocol and Reward Adjustments}
 
 Table~\ref{tab:reward_changes} shows the two targeted reward parameter
 changes applied in Stage~5 to address the Stage~4 throughput reduction.
@@ -995,7 +994,7 @@ Training Episodes         & 100     & 100            \\
 \end{tabular}
 \end{table}
 
-\subsection{Training Dynamics}
+\subsubsection{Training Dynamics}
 
 Table~\ref{tab:hab_training} shows the fine-tuning progression in five
 episode blocks, and Fig.~\ref{fig:training_hab} shows the same story as
@@ -1062,7 +1061,7 @@ Ep.\ 76--100 & $-608.1$ & $978.8$ \\
 \label{fig:training_hab}
 \end{figure*}
 
-\subsection{Evaluation Results}
+\subsubsection{Evaluation Results}
 
 The fine-tuned MH-DQN achieves a 40.2\% waiting time reduction
 (1.9\,s vs.\ 3.1\,s) and a 28.2\% queue length reduction, alongside a 5.1\%
@@ -1134,7 +1133,7 @@ aggregate percentages in Table~\ref{tab:results_hab} to be read as a
 reliable property of the fine-tuned policy, rather than a result specific
 to one favorable episode.
 
-\subsection{Junction-Level Analysis}
+\subsubsection{Junction-Level Analysis}
 
 Per-junction rewards at episode~100: J0 ($-127.1$), J1 ($-96.3$), J2
 ($-113.9$), J3 ($-102.8$), J4 ($-95.3$), J5 ($-73.4$). Lower penalties at
