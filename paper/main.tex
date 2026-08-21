@@ -77,7 +77,7 @@ Adaptive Traffic Signal Control, Road transportation, Reinforcement Learning, In
 problem with economic, environmental, and social costs. Inefficient
 signal timing contributes to lost productivity, unnecessary fuel
 consumption, higher emissions, and reduced quality of life in metropolitan
-areas~\cite{wei2018intellilight,liang2019deep}. Most intersections are still
+areas~\cite{zhao2024survey,xiao2026survey}. Most intersections are still
 regulated by fixed-time controllers, which allocate green time according to
 a pre-set schedule regardless of actual demand. Such controllers are simple
 and reliable to operate, but they cannot adapt when traffic volume rises,
@@ -100,7 +100,7 @@ behavior depending on demand. A nearly empty road, a moderately congested
 one, and a fully saturated one each call for a distinct control strategy. A
 single policy can achieve reasonable average performance across these
 conditions, but it typically underperforms a policy specialized for each
-regime~\cite{chu2020multiagent}.
+regime~\cite{yao2025moesac}.
 
 % ------------------------------------------------------------------
 % FIGURE 1 — traffic regimes diagram   IMAGE: fig1RL.png
@@ -151,7 +151,7 @@ advance and cannot reshape itself as demand evolves over a day or across
 seasons. Model-based optimization approaches, including integer programming
 and model predictive control, offer theoretical guarantees but suffer from
 computational intractability at scale and depend on accurate traffic models
-that are difficult to maintain in practice~\cite{liang2019deep}. Model
+that are difficult to maintain in practice~\cite{chen2022realdeal}. Model
 predictive controllers, in particular, must re-solve a constrained
 optimization problem at every decision step, and their performance degrades
 sharply once the calibrated model drifts from field conditions, a recurring
@@ -167,47 +167,55 @@ Deep reinforcement learning has emerged as a prominent data-driven
 alternative to the methods above. Mnih et al.~\cite{mnih2015human}
 demonstrated that DQN achieves strong performance on complex sequential
 decision tasks, establishing the algorithmic foundation for subsequent
-RL-based traffic signal control (RL-TSC) work. Wei et
-al.~\cite{wei2018intellilight} applied DQN directly to traffic signal
-control (IntelliLight), showing that learned policies outperform fixed-time
-controllers at isolated intersections, though scaling to multi-junction
-networks remains difficult. Liang et al.~\cite{liang2019deep} extended
-DRL-based TSC with phase-sensitive reward functions to improve convergence,
-but retained a single unified policy across all demand levels.
+RL-based traffic signal control (RL-TSC) work. Chen et
+al.~\cite{chen2022realdeal} reviewed the practical barriers -- detector
+noise, communication reliability, and interpretability -- that have kept
+RL-TSC controllers largely out of field deployment despite strong
+simulation results, while Mei et al.~\cite{mei2023libsignal} released
+LibSignal, an open benchmarking library that standardizes state, reward,
+and evaluation protocols across SUMO and CityFlow so published RL-TSC
+methods can be compared fairly. Both works, however, evaluate each
+candidate algorithm as a single policy applied uniformly across all traffic
+conditions.
 
-A related line of work improves the underlying learning algorithm rather
-than the traffic-specific formulation. Double DQN~\cite{hasselt2016deep} and
-Dueling DQN~\cite{wang2016dueling} address value overestimation and training
-instability, respectively, but both retain a monolithic policy structure.
-Prioritized experience replay~\cite{schaul2016prioritized} accelerates value
-learning by sampling high-error transitions more frequently; such
-algorithmic refinements are broadly orthogonal to architectural choices and
-can be combined with specialized policy structures such as the one proposed
-here rather than competing with them. At the network level, multi-agent RL
-frameworks~\cite{chu2020multiagent,eltantawy2013marlin} scale to large
-networks by training independent per-junction agents, while pressure-based
-formulations such as max-pressure
-control~\cite{varaiya2013maxpressure,wei2019presslight} encode queue
-imbalance directly into the state representation to promote network-level
-stability.
-Transfer learning approaches~\cite{mannion2018transfer} reduce sample
-complexity in new environments by reusing representations learned in a
-source domain. Mixture-of-experts architectures~\cite{jacobs1991adaptive}
-demonstrate that specialized sub-networks outperform monolithic models on
-multi-modal input distributions, a property directly applicable to
-multi-regime traffic. Recent surveys of RL-based signal
-control~\cite{haydari2022deep} catalogue a rapid proliferation of state
-designs, reward formulations, and coordination mechanisms, but consistently
-note that most deployed agents still rely on a single value network
-expected to cover the full operating envelope, from near-empty approaches to
-heavily saturated ones. Table~\ref{tab:related} summarizes these approaches
+A related line of work improves generalization and coordination rather
+than the traffic-specific formulation. Jiang et al.~\cite{jiang2024xlight}
+proposed X-Light, a transformer-on-transformer meta-reinforcement-learning
+architecture that transfers a shared policy across cities with
+heterogeneous intersection layouts, and Yuan et
+al.~\cite{yuan2025collmlight} introduced CoLLMLight, which coordinates
+signal decisions network-wide using cooperating large language model agents
+reasoning over a spatiotemporal traffic graph. Zhang et
+al.~\cite{zhang2026equity} proposed MA2B-DDQN, an action-branching double
+DQN that decomposes a corridor into per-intersection and network-wide
+action branches to optimize traveler-level equity. Each of these systems
+scales an RL-TSC policy along a different axis -- across cities, across
+coordinating agents, or across equity objectives -- but retains a single
+policy, or a single policy per branch, that must cover the full range of
+traffic demand it encounters, from a nearly empty approach to a fully
+saturated one.
+
+Two recent surveys reach the same conclusion from a broader vantage point.
+Zhao et al.~\cite{zhao2024survey} review the DRL-TSC literature by state
+design, reward formulation, and algorithm family, and Xiao et
+al.~\cite{xiao2026survey} extend this taxonomy with the most recent
+architecture-level developments; both note that the large majority of
+published RL-TSC agents still commit to a single value network expected to
+cover the entire operating envelope. Outside traffic signal control, Yao et
+al.~\cite{yao2025moesac} show that a mixture-of-experts controller --
+gated between a reinforcement-learning expert and a heuristic expert --
+outperforms a single soft-actor-critic policy on highway maneuver decisions
+for connected and automated vehicles, evidence that specialized sub-policies
+generalize better than a monolithic one when the underlying decision
+context is itself heterogeneous, a property directly applicable to
+multi-regime traffic. Table~\ref{tab:related} summarizes these approaches
 and their limitations. The framework proposed in this paper addresses this
 gap by introducing a regime-aware traffic signal control approach for
 intelligent networked transportation systems.
 
 
 \begin{table}[!t]
-\caption{Summary of Key RL-Based TSC Approaches\label{tab:related}}
+\caption{Summary of Key RL-Based TSC Approaches, 2022--2026\label{tab:related}}
 \centering
 \renewcommand{\arraystretch}{1.25}
 \begin{tabular}{@{}>{\raggedright}p{1.55cm}
@@ -216,27 +224,30 @@ intelligent networked transportation systems.
 \toprule
 \textbf{Author/Year} & \textbf{Approach} & \textbf{Limitation} \\
 \midrule
-Mnih et al.\ 2015~\cite{mnih2015human}
-  & DQN with experience replay \& target network
-  & Not traffic-specific; single monolithic policy \\
-Wei et al.\ 2018~\cite{wei2018intellilight}
-  & IntelliLight: DQN for single-intersection TSC
-  & Single intersection only; no multi-regime handling \\
-Liang et al.\ 2019~\cite{liang2019deep}
-  & DRL with phase-sensitive reward shaping
-  & Single unified policy \\
-Hasselt et al.\ 2016~\cite{hasselt2016deep}
-  & Double DQN (reduces overestimation)
-  & Monolithic policy; no regime specialization \\
-Wang et al.\ 2016~\cite{wang2016dueling}
-  & Dueling DQN (value + advantage streams)
-  & Monolithic; not evaluated for multi-junction networks \\
-Chu et al.\ 2020~\cite{chu2020multiagent}
-  & Multi-agent DRL for large-scale TSC
-  & No traffic regime awareness \\
-Mannion et al.\ 2018~\cite{mannion2018transfer}
-  & Transfer learning for multi-intersection TSC
-  & Single unified policy transferred; no regime specialization \\
+Chen et al.\ 2022~\cite{chen2022realdeal}
+  & Review of RL-TSC field-deployment barriers
+  & Identifies sim-to-real gaps; no regime-specialized architecture proposed \\
+Mei et al.\ 2022~\cite{mei2023libsignal}
+  & LibSignal: cross-simulator RL-TSC benchmark library
+  & Standardizes evaluation only; each algorithm remains one policy \\
+Zhao et al.\ 2024~\cite{zhao2024survey}
+  & Survey of DRL-TSC state, reward, and algorithm design
+  & Confirms single-network policies dominate; proposes no new architecture \\
+Jiang et al.\ 2024~\cite{jiang2024xlight}
+  & X-Light: transformer meta-RL for cross-city transfer
+  & One shared policy per city; no within-city regime decomposition \\
+Yao et al.\ 2025~\cite{yao2025moesac}
+  & Mixture-of-experts SAC for CAV highway maneuvers
+  & MoE gating at vehicle level, not signal timing; no traffic-regime classifier \\
+Yuan et al.\ 2025~\cite{yuan2025collmlight}
+  & CoLLMLight: cooperative LLM agents for network-wide TSC
+  & Per-step LLM inference cost; no explicit demand-regime decomposition \\
+Zhang et al.\ 2026~\cite{zhang2026equity}
+  & MA2B-DDQN: equity-aware action-branching DDQN
+  & Branches by corridor structure, not by traffic regime \\
+Xiao et al.\ 2026~\cite{xiao2026survey}
+  & Survey of RL-TSC architectures and objectives
+  & Confirms regime-aware architectures remain rare in deployed RL-TSC \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1432,71 +1443,59 @@ V.~Mnih \textit{et al.},
 ``Human-level control through deep reinforcement learning,''
 \textit{Nature}, vol.~518, no.~7540, pp.~529--533, Feb.\ 2015.
 
-\bibitem{wei2018intellilight}
-H.~Wei, G.~Zheng, H.~Yao, and Z.~Li,
-``IntelliLight: A reinforcement learning approach for intelligent traffic
-light control,''
-in \textit{Proc.\ ACM SIGKDD Int.\ Conf.\ Knowl.\ Discovery Data Mining},
-2018, pp.~2496--2505.
+\bibitem{chen2022realdeal}
+R.~Chen, F.~Fang, and N.~Sadeh,
+``The real deal: A review of challenges and opportunities in moving
+reinforcement learning-based traffic signal control systems towards
+reality,''
+\textit{arXiv preprint arXiv:2206.11996}, 2022.
 
-\bibitem{chu2020multiagent}
-T.~Chu, J.~Wang, L.~Cod\`{e}ca, and Z.~Li,
-``Multi-agent deep reinforcement learning for large-scale traffic signal
+\bibitem{mei2023libsignal}
+H.~Mei, X.~Lei, L.~Da, B.~Shi, and H.~Wei,
+``LibSignal: An open library for traffic signal control,''
+\textit{Mach.\ Learn.}, pp.~1--37, 2023.
+
+\bibitem{zhao2024survey}
+H.~Zhao, C.~Dong, J.~Cao, and Q.~Chen,
+``A survey on deep reinforcement learning approaches for traffic signal
 control,''
-\textit{IEEE Trans.\ Intell.\ Transp.\ Syst.}, vol.~21, no.~3,
-pp.~1086--1095, Mar.\ 2020.
+\textit{Eng.\ Appl.\ Artif.\ Intell.}, vol.~133, art.\ no.~108100, 2024.
 
-\bibitem{hasselt2016deep}
-H.~van~Hasselt, A.~Guez, and D.~Silver,
-``Deep reinforcement learning with double Q-learning,''
-in \textit{Proc.\ AAAI Conf.\ Artif.\ Intell.}, 2016, pp.~2094--2100.
+\bibitem{jiang2024xlight}
+H.~Jiang, Z.~Li, H.~Wei, X.~Xiong, J.~Ruan, J.~Lu, H.~Mao, and R.~Zhao,
+``X-Light: Cross-city traffic signal control using transformer on
+transformer as meta multi-agent reinforcement learner,''
+in \textit{Proc.\ Int.\ Joint Conf.\ Artif.\ Intell.\ (IJCAI)}, 2024.
 
-\bibitem{wang2016dueling}
-Z.~Wang, T.~Schaul, M.~Hessel, H.~van~Hasselt, M.~Lanctot, and N.~de~Freitas,
-``Dueling network architectures for deep reinforcement learning,''
-in \textit{Proc.\ Int.\ Conf.\ Mach.\ Learn.}, 2016, pp.~1995--2003.
+\bibitem{yao2025moesac}
+F.~Yao, C.~Sun, B.~Lu, B.~Wang, and H.~Yu,
+``Mixture of experts framework based on soft actor-critic algorithm for
+highway decision-making of connected and automated vehicles,''
+\textit{Chin.\ J.\ Mech.\ Eng.}, vol.~38, no.~1, 2025.
 
-\bibitem{jacobs1991adaptive}
-R.~A.~Jacobs, M.~I.~Jordan, S.~J.~Nowlan, and G.~E.~Hinton,
-``Adaptive mixtures of local experts,''
-\textit{Neural Comput.}, vol.~3, no.~1, pp.~79--87, 1991.
+\bibitem{yuan2025collmlight}
+Z.~Yuan, S.~Lai, and H.~Liu,
+``CoLLMLight: Cooperative large language model agents for network-wide
+traffic signal control,''
+\textit{arXiv preprint arXiv:2503.11739}, 2025.
 
-\bibitem{liang2019deep}
-X.~Liang, X.~Du, G.~Wang, and Z.~Han,
-``A deep reinforcement learning network for traffic light cycle control,''
-\textit{IEEE Trans.\ Veh.\ Technol.}, vol.~68, no.~2,
-pp.~1243--1253, Feb.\ 2019.
+\bibitem{zhang2026equity}
+X.~Zhang, N.~Nassir, L.~S.~Chan, and M.~Haghani,
+``Human-centric traffic signal control for equity: A multi-agent action
+branching deep reinforcement learning approach,''
+\textit{arXiv preprint arXiv:2602.02959}, 2026.
 
-\bibitem{mannion2018transfer}
-P.~Mannion, J.~Duggan, and E.~Howley,
-``Transfer learning for multi-intersection traffic signal control,''
-in \textit{Proc.\ Int.\ Conf.\ Auton.\ Agents Multiagent Syst.},
-2018, pp.~1778--1780.
+\bibitem{xiao2026survey}
+H.~Xiao, H.~Li, Z.~Wang, Z.~Yang, S.~Qi, J.~Zhang, D.~Z.~Cai, and J.~Q.~Yin,
+``Intelligent traffic signal control based on reinforcement learning: A
+survey,''
+\textit{Artif.\ Intell.\ Rev.}, vol.~59, no.~5, 2026.
 
 \bibitem{lopez2018microscopic}
 P.~A.~Lopez \textit{et al.},
 ``Microscopic traffic simulation using SUMO,''
 in \textit{Proc.\ IEEE Int.\ Conf.\ Intell.\ Transp.\ Syst.},
 2018, pp.~2575--2582.
-
-\bibitem{schaul2016prioritized}
-T.~Schaul, J.~Quan, I.~Antonoglou, and D.~Silver,
-``Prioritized experience replay,''
-in \textit{Proc.\ Int.\ Conf.\ Learn.\ Represent.}, 2016, pp.~1--21.
-
-\bibitem{wei2019presslight}
-H.~Wei \textit{et al.},
-``PressLight: Learning max pressure control to coordinate traffic signals
-in arterial networks,''
-in \textit{Proc.\ ACM SIGKDD Int.\ Conf.\ Knowl.\ Discovery Data Mining},
-2019, pp.~1290--1298.
-
-\bibitem{haydari2022deep}
-A.~Haydari and Y.~Yilmaz,
-``Deep reinforcement learning for intelligent transportation systems:
-A survey,''
-\textit{IEEE Trans.\ Intell.\ Transp.\ Syst.}, vol.~23, no.~1,
-pp.~11--32, Jan.\ 2022.
 
 \bibitem{suttonbarto2018}
 R.~S.~Sutton and A.~G.~Barto,
@@ -1519,20 +1518,6 @@ A.~G.~Sims and K.~W.~Dobinson,
 benefits,''
 \textit{IEEE Trans.\ Veh.\ Technol.}, vol.~29, no.~2, pp.~130--137,
 May 1980.
-
-\bibitem{varaiya2013maxpressure}
-P.~Varaiya,
-``Max pressure control of a network of signalized intersections,''
-\textit{Transp.\ Res.\ Part C, Emerg.\ Technol.}, vol.~36, pp.~177--195,
-Nov.\ 2013.
-
-\bibitem{eltantawy2013marlin}
-S.~El-Tantawy, B.~Abdulhai, and H.~Abdelgawad,
-``Multiagent reinforcement learning for integrated network of adaptive
-traffic signal controllers (MARLIN-ATSC): Methodology and large-scale
-application on downtown Toronto,''
-\textit{IEEE Trans.\ Intell.\ Transp.\ Syst.}, vol.~14, no.~3,
-pp.~1140--1150, Sep.\ 2013.
 
 \bibitem{kingma2015adam}
 D.~P.~Kingma and J.~Ba,
