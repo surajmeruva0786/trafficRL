@@ -1347,7 +1347,14 @@ failure for the entire corridor. The decentralized formulation degrades
 gracefully: an individual agent continues to operate on its own local
 state even if neighboring controllers are unavailable, while still
 benefiting from the demand shaping that each upstream junction imposes on
-the arrivals seen downstream.
+the arrivals seen downstream. This stands in contrast to recent
+coordination-heavy RL-TSC systems such as CoLLMLight~\cite{yuan2025collmlight},
+which requires per-step LLM inference across cooperating agents, and
+X-Light~\cite{jiang2024xlight}, which shares a single meta-learned policy
+across an entire city; the results here suggest that much of the
+coordination benefit those systems pursue explicitly can instead emerge
+implicitly from regime-aware local policies interacting through a shared
+traffic environment.
 
 \textbf{Transfer learning enables rapid corridor adaptation.}
 Even Stage~4's direct transfer achieves $-49.5\%$ waiting time and $-35.1\%$
@@ -1372,24 +1379,37 @@ Several directions emerge from this progressive development:
 \begin{enumerate}
     \item \textit{Reward Function Tuning:} Pareto-optimal reward
           formulations jointly optimizing waiting time and throughput could
-          reduce the residual $\approx\!11\%$ throughput gap.
-    \item \textit{Explicit Multi-Agent Coordination:} Graph neural networks
-          or attention mechanisms for inter-agent
-          communication~\cite{wei2019colight} could enable corridor-level
-          coordination while maintaining waiting-time gains.
+          reduce the residual $\approx\!11\%$ throughput gap, potentially
+          incorporating traveler-level equity terms in the spirit of
+          Zhang et al.~\cite{zhang2026equity}.
+    \item \textit{Explicit Multi-Agent Coordination:} Graph neural
+          networks, attention mechanisms, or cooperating LLM agents for
+          inter-agent communication~\cite{wei2019colight,yuan2025collmlight}
+          could enable corridor-level coordination while maintaining
+          waiting-time gains.
     \item \textit{Hierarchical Policy Learning:} A corridor-level policy
           coordinating junction-level agents could yield system-level
           benefits beyond individual junction optimization.
     \item \textit{Dynamic Regime Threshold Adaptation:} Adaptive regime
-          boundary definitions could improve robustness across diverse
-          urban environments and time-of-day demand profiles.
+          boundary definitions, potentially learned jointly with the
+          gating mechanism as in mixture-of-experts
+          controllers~\cite{yao2025moesac}, could improve robustness
+          across diverse urban environments and time-of-day demand
+          profiles.
     \item \textit{Real-World Deployment:} Transferring SUMO-trained
           policies to real intersections with live sensor data, noise,
           communication delays, and safety constraints is the critical
-          next step.
+          next step, addressing the deployment barriers identified by
+          Chen et al.~\cite{chen2022realdeal} and preceded by
+          cross-simulator validation using open benchmarking tools such
+          as LibSignal~\cite{mei2023libsignal}.
     \item \textit{Extended Corridor Networks:} Applying the framework
           city-wide through hierarchical or federated multi-agent
-          extensions, building on Stage~3 scalability.
+          extensions, following the cross-city transfer strategy of
+          X-Light~\cite{jiang2024xlight} or the corridor-to-network
+          action-branching decomposition of
+          Zhang et al.~\cite{zhang2026equity}, building on Stage~3
+          scalability.
 \end{enumerate}
 
 % ---------------------------------------------------------------
