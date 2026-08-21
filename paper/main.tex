@@ -253,7 +253,7 @@ Xiao et al.\ 2026~\cite{xiao2026survey}
 \end{table}
 
 % ---------------------------------------------------------------
-\section{System Architecture and Methodology}
+\section{Problem Formulation and Notation}
 \label{sec:arch}
 % ---------------------------------------------------------------
 
@@ -398,7 +398,13 @@ and $\gamma=0.95$ in Stages~2--5 (MH-DQN). This slight reduction in later
 stages prioritizes near-term congestion relief and stabilizes training under
 a multi-objective reward with regime-switching dynamics.
 
-\subsection{Multi-Head DQN Architecture}
+\subsection{System Architecture and Methodology}
+
+The system architecture and its training methodology are described in
+two parts below: the MH-DQN architecture itself, and the objective used
+to train it.
+
+\subsubsection{Multi-Head DQN Architecture}
 
 The MH-DQN architecture comprises three tightly coupled components.
 Fig.~\ref{fig:mhdqn_arch} illustrates the complete architecture.
@@ -478,7 +484,7 @@ the greedy action is selected.}
 \label{fig:mhdqn_arch}
 \end{figure*}
 
-\subsection{Training Objective}
+\subsubsection{Training Objective}
 
 The training objective is grounded in temporal difference (TD)
 learning~\cite{watkins1992qlearning,mnih2015human}. Each Q-head $k$ is
