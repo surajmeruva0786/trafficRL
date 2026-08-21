@@ -242,3 +242,15 @@ presentation, metadata, or a technical/formatting fix.
 - Removed `\usepackage{tikz}` and `\usetikzlibrary{...}` from the
   preamble, since after this change no figure in the document draws
   with TikZ anymore.
+
+## 9. Figure 1 caption shortened
+**Commit:** `ce2a7a8`
+
+- Trimmed the Figure 1 caption down to a single sentence: "Three
+  operational regimes at a signalized intersection. Each regime is
+  characterized by a distinct queue length and waiting time range."
+- Removed the trailing clauses about each regime requiring a different
+  control strategy and about a single monolithic policy motivating the
+  multi-head architecture — that reasoning is still made in the
+  surrounding Introduction prose, so nothing is lost, only de-duplicated
+  out of the caption.
