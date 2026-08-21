@@ -315,3 +315,47 @@ presentation, metadata, or a technical/formatting fix.
   bibliography LaTeX environments remain balanced.
 - Net bibliography size: 22 entries before this change, 18 after (12
   outdated entries removed, 8 added).
+
+## 16. New 2022-2026 literature woven into Discussion and Future Work
+**Commit:** `5024d6f`
+
+- The previous entry (\#15) only touched Section II. This pass carried
+  the same eight references into the parts of the paper where the
+  paper compares itself against, or points toward, prior/related
+  approaches, so the refresh isn't confined to one section:
+  - **Discussion**, "Decentralized multi-agent control is effective"
+    paragraph: added a closing comparison contrasting this work's
+    implicit, communication-free coordination with CoLLMLight's
+    ~\cite{yuan2025collmlight} per-step LLM inference across cooperating
+    agents and X-Light's~\cite{jiang2024xlight} single shared
+    cross-city policy — positioning the decentralized MH-DQN result
+    against two concrete recent alternatives instead of an unspecific
+    claim.
+  - **Future Work**, all six bullets now cite the specific recent work
+    each proposed extension would build on:
+    1. *Reward Function Tuning* — added a pointer to equity-aware
+       reward terms, citing Zhang et al.~\cite{zhang2026equity}.
+    2. *Explicit Multi-Agent Coordination* — added
+       \cite{yuan2025collmlight} (cooperating LLM agents) alongside the
+       existing CoLight~\cite{wei2019colight} citation.
+    3. *Hierarchical Policy Learning* — left unchanged; no 2022-2026
+       reference in the working set matched this bullet specifically.
+    4. *Dynamic Regime Threshold Adaptation* — added
+       \cite{yao2025moesac}, since learned MoE gating is the closest
+       existing analogue to adaptive regime-boundary learning.
+    5. *Real-World Deployment* — added \cite{chen2022realdeal} (the
+       barriers this bullet describes are the ones that paper
+       enumerates) and \cite{mei2023libsignal} (LibSignal) as a
+       cross-simulator validation step to precede field deployment.
+    6. *Extended Corridor Networks* — added \cite{jiang2024xlight}
+       (cross-city transfer) and \cite{zhang2026equity}
+       (corridor-to-network action-branching) as two concrete scaling
+       strategies.
+- Zhao et al. 2024 and Xiao et al. 2026 (the two DRL-TSC surveys) were
+  left cited only in the Introduction and Related Work, where survey
+  papers belong; they don't describe a specific technique for the
+  Discussion or Future Work to build on or contrast against.
+- Re-ran the same scripted check as entry \#15 after this pass: every
+  `\cite{}` key resolves to a defined `\bibitem{}` and vice versa (18
+  defined, 18 used, zero orphans in either direction), and all
+  table/figure/bibliography LaTeX environments remain balanced.
