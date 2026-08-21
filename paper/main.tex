@@ -659,32 +659,20 @@ observations confirm that the gains reported in
 Table~\ref{tab:results_sim} are a stable property of the learned policy,
 not an artefact of averaging over a few unusually good runs.
 
-% ------------------------------------------------------------------
-% FIGURE 5 — Regime distribution Stage 2
-% IMAGE: WhatsApp Image 2026-02-10 at 9.05.32 AM.jpeg
-% ------------------------------------------------------------------
-\begin{figure}[!t]
-\centering
-\includegraphics[width=3.4in]{"WhatsApp Image 2026-02-10 at 9.05.32 AM.jpeg"}
-\caption{Traffic regime distribution during training: balanced
-representation across low, medium, and high demand (Stage~2).}
-\label{fig:regime}
-\end{figure}
-
 Fig.~\ref{fig:comparison} shows this same comparison visually across all
-six metrics at once. Three further figures help explain \emph{why} the
-MH-DQN is able to reach this result in the first place. First, the regime
-distribution during training (Fig.~\ref{fig:regime}) shows that the agent
-spent a reasonably even mix of time across conditions: 32\% of states were
-low-demand, 41.8\% medium-demand, and 26.2\% high-demand. This matters
-because it means all three Q-heads received enough experience to actually
-learn a sensible policy; had one regime been rarely visited, its head
-would have remained undertrained regardless of the architecture around
-it. Second, the regime classifier reaches 100\% classification accuracy
-during evaluation (Fig.~\ref{fig:confusion}), meaning that at test time
-every state was routed to the head trained for it, and none of the
-reported gains can be attributed to a head accidentally handling traffic
-it was never designed for. Third, the head specialization score, which quantifies how differently
+six metrics at once. Two further figures, alongside the regime
+distribution observed during training, help explain \emph{why} the
+MH-DQN is able to reach this result in the first place. During training,
+the agent spent a reasonably even mix of time across conditions: 32\% of
+states were low-demand, 41.8\% medium-demand, and 26.2\% high-demand. This
+matters because it means all three Q-heads received enough experience to
+actually learn a sensible policy; had one regime been rarely visited, its
+head would have remained undertrained regardless of the architecture
+around it. First, the regime classifier reaches 100\% classification
+accuracy during evaluation (Fig.~\ref{fig:confusion}), meaning that at
+test time every state was routed to the head trained for it, and none of
+the reported gains can be attributed to a head accidentally handling
+traffic it was never designed for. Second, the head specialization score, which quantifies how differently
 the three heads behave in the same state, fluctuates substantially over
 training rather than climbing smoothly (Fig.~\ref{fig:specialization}),
 with pronounced peaks in divergence around episodes~70 and~190 that are
@@ -698,7 +686,7 @@ medium-, and high-regime heads do learn distinguishable behaviors, even
 though the degree of divergence at any single point in training varies.
 
 % ------------------------------------------------------------------
-% FIGURE 6 — Confusion matrix training Stage 2
+% FIGURE 5 — Confusion matrix training Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 9.05.37 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -710,7 +698,7 @@ though the degree of divergence at any single point in training varies.
 \end{figure}
 
 % ------------------------------------------------------------------
-% FIGURE 7 — Confusion matrix evaluation Stage 2
+% FIGURE 6 — Confusion matrix evaluation Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 10.48.34 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -722,7 +710,7 @@ classification accuracy (Stage~2).}
 \end{figure}
 
 % ------------------------------------------------------------------
-% FIGURE 8 — Head specialization Stage 2
+% FIGURE 7 — Head specialization Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 9.05.42 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -806,7 +794,7 @@ architecture, the same 9-dimensional state, and the same 2-action space,
 without explicit inter-agent communication. Training: 200 episodes.
 
 % ------------------------------------------------------------------
-% FIGURE 9 — 3×3 grid SUMO layout    IMAGE: stage3.png
+% FIGURE 8 — 3×3 grid SUMO layout    IMAGE: stage3.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
 \centering
@@ -906,7 +894,7 @@ evenly spaced layout:
 \end{itemize}
 
 % ------------------------------------------------------------------
-% FIGURE 10 — Corridor SUMO layout    IMAGE: stage4_5.png
+% FIGURE 9 — Corridor SUMO layout    IMAGE: stage4_5.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
 \centering
@@ -919,7 +907,7 @@ reflects the real-world geometry of the corridor.}
 \end{figure}
 
 % ------------------------------------------------------------------
-% FIGURE 11 — Real-world map          IMAGE: habsiguda_map.jpg
+% FIGURE 10 — Real-world map          IMAGE: habsiguda_map.jpg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
 \centering
@@ -1076,7 +1064,7 @@ Ep.\ 76--100 & $-608.1$ & $978.8$ \\
 \end{table}
 
 % ------------------------------------------------------------------
-% FIGURE 12 — Training curves Stage 5   IMAGE: training_curves.png
+% FIGURE 11 — Training curves Stage 5   IMAGE: training_curves.png
 % ------------------------------------------------------------------
 \begin{figure*}[!t]
 \centering
@@ -1132,7 +1120,7 @@ Phase Changes       & 450.0 & 553.2           & $+22.9\%$ \\
 \end{table}
 
 % ------------------------------------------------------------------
-% FIGURE 13 — Evaluation bar chart Stage 5
+% FIGURE 12 — Evaluation bar chart Stage 5
 % IMAGE: comparison_finetuned.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -1143,33 +1131,21 @@ baseline on the real-world corridor (Stage~5, 2{,}000~veh/hr).}
 \label{fig:comparison_hab}
 \end{figure}
 
-% ------------------------------------------------------------------
-% FIGURE 14 — Per-episode comparison Stage 5
-% IMAGE: per_episode_comparison.png
-% ------------------------------------------------------------------
-\begin{figure}[!t]
-\centering
-\includegraphics[width=3.4in]{per_episode_comparison.png}
-\caption{Per-episode comparison over 5 evaluation episodes on the
-real-world corridor (Stage~5).}
-\label{fig:episodes_hab}
-\end{figure}
-
 Fig.~\ref{fig:comparison_hab} presents the same five metrics from
 Table~\ref{tab:results_hab} as a single bar chart, making the pattern
 easy to see at a glance: the MH-DQN's bars are shorter than the
 fixed-time baseline's for throughput and taller for speed, while its
 waiting-time and queue-length bars are markedly shorter and its
-phase-change bar is only modestly taller. Fig.~\ref{fig:episodes_hab}
-then checks whether this pattern holds up episode by episode rather than
-only on average, across five separate evaluation runs. It does: in every
-one of the five episodes, the MH-DQN records lower waiting time and
-shorter queues than the fixed-time baseline, and in every episode its
-throughput is correspondingly lower, with no single evaluation episode
-reversing the trade-off described above. This consistency across
-independent evaluation runs is what allows the aggregate percentages in
-Table~\ref{tab:results_hab} to be read as a reliable property of the
-fine-tuned policy, rather than a result specific to one favorable episode.
+phase-change bar is only modestly taller. This pattern also holds up
+episode by episode rather than only on average, across five separate
+evaluation runs: in every one of the five episodes, the MH-DQN records
+lower waiting time and shorter queues than the fixed-time baseline, and
+in every episode its throughput is correspondingly lower, with no single
+evaluation episode reversing the trade-off described above. This
+consistency across independent evaluation runs is what allows the
+aggregate percentages in Table~\ref{tab:results_hab} to be read as a
+reliable property of the fine-tuned policy, rather than a result specific
+to one favorable episode.
 
 \subsection{Junction-Level Analysis}
 
