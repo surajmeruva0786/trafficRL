@@ -359,3 +359,53 @@ presentation, metadata, or a technical/formatting fix.
   `\cite{}` key resolves to a defined `\bibitem{}` and vice versa (18
   defined, 18 used, zero orphans in either direction), and all
   table/figure/bibliography LaTeX environments remain balanced.
+
+## 17. Figures 2, 6, 7, and 11 removed
+**Commit:** `49f02e8`
+
+- Removed four of the paper's 18 figures (14 remain), and rewrote every
+  paragraph that depended on one of them so nothing was left describing
+  a plot that no longer exists:
+  - **Figure 2** (`fig:system_overview`, `fig2RL.png`) — the generic
+    MH-DQN system-architecture diagram. It largely duplicated the
+    detailed architecture figure (`fig3RL.png`, now Figure 2) a few
+    paragraphs later, so the sentence in "System Architecture and
+    Methodology" that pointed to it was rewritten into an inline prose
+    description of the same state → shared trunk → classifier →
+    Q-heads → soft gating → action pipeline, with a forward pointer to
+    the detailed figure instead.
+  - **Figure 6** (`fig:episodes`) and **Figure 7** (`fig:distribution`)
+    — a paired per-episode line plot and box-plot distribution for
+    Stage 2, both used in one paragraph to argue that the reported
+    averages aren't hiding a few bad episodes. Rewrote that paragraph
+    as prose grounded in Table II (`tab:results_sim`): the MH-DQN still
+    beats the fixed-time baseline in all 10 evaluation episodes with no
+    overlap, the claim just isn't illustrated with a plot anymore.
+  - **Figure 11** (`fig:training`) — the Stage 2 training-dynamics plot
+    (episode reward, Q-loss, classifier loss/accuracy over 200
+    episodes). It was central to two paragraphs. The first explained an
+    apparent contradiction between near-chance training-time classifier
+    accuracy and the 100% evaluation accuracy reported earlier; that
+    paragraph now cites only the two confusion-matrix figures that
+    remain (`fig:confusion_train`, `fig:confusion`) and describes the
+    accuracy-curve and classifier-loss numbers as findings from the
+    underlying training logs rather than a figure. The second paragraph
+    (Q-loss convergence, reward drift, waiting-time stability) is now
+    framed the same way, as a description of the logs rather than "the
+    remaining panels of Fig. X."
+- Renumbered the `% FIGURE N` comment headers for all 14 remaining
+  figures so they stay sequential (1-14); these are source comments
+  only and don't affect the compiled output, but were kept accurate for
+  anyone editing the file later. Also deleted one now-orphaned comment
+  separator left behind by the Figure 6/7 removal.
+- The four now-unreferenced image files (`fig2RL.png` and three of the
+  `WhatsApp Image ...jpeg` files) were left in the repository rather
+  than deleted, since removing files wasn't part of what was asked;
+  they're simply no longer pulled into the PDF by any
+  `\includegraphics`.
+- Verified with the same scripted checks used in entries \#15-16: every
+  `\ref{fig:...}` resolves to a defined `\label{fig:...}` and vice versa
+  (14 defined, 14 used, zero orphans), every `\cite{}`/`\bibitem{}`
+  pairing is still intact and untouched by this change, and all
+  figure/table/bibliography LaTeX environments remain balanced
+  (14 `\begin{figure}` / `\end{figure}` pairs, matching the 14 labels).
