@@ -552,3 +552,40 @@ presentation, metadata, or a technical/formatting fix.
 - Verified with the existing scripted checks: figure labels/refs
   (12/12, no orphans), table labels/refs (11/11, no orphans), citations
   (18/18, untouched), and all LaTeX environments remain balanced.
+
+## 21. Fixed a leftover section-intro paragraph from entry #20
+**Commit:** `d96751c`
+
+- The user reported entry #20 was wrong. Re-reading their correction
+  alongside the actual file turned up a real bug: entry #20 renamed
+  Section III's title but left a paragraph sitting directly under the
+  new heading that was still written for the section's *old* identity
+  ("System Architecture and Methodology") and never got moved or
+  rewritten. That paragraph had two concrete problems:
+  1. Its "progressive development trajectory" sentence duplicated the
+     five-stage summary already given in subsection A (Overall
+     Development Pipeline), immediately below it.
+  2. Its architecture info-flow description ("the SUMO environment
+     produces a 9-dimensional state...") forward-referenced Fig. 2
+     (`fig:mhdqn_arch`) three subsections early — before Notation and
+     Problem Formulation even started — since that figure now actually
+     lives inside subsection D, added by entry #20.
+  The subsection structure itself (D = "System Architecture and
+  Methodology" containing Multi-Head DQN Architecture and Training
+  Objective as subsubsections) was already correct and unchanged from
+  entry #20; this was purely a stale-paragraph cleanup that entry #20
+  should have done as part of the rename but didn't.
+- Split the orphaned paragraph and relocated each half:
+  - The staged-validation reasoning ("...so that observed performance
+    gains can be attributed to the specific architectural change
+    introduced at each stage") is now folded into subsection A's
+    existing sentence instead of sitting duplicated above the section.
+  - The information-flow description now opens subsection D directly,
+    replacing entry #20's placeholder one-line lead-in ("The system
+    architecture and its training methodology are described in two
+    parts below..."). The figure reference it carries now sits in the
+    subsubsection immediately following it, rather than three
+    subsections away.
+- Verified with the existing scripted checks: figure labels/refs
+  (12/12, no orphans), table labels/refs (11/11, no orphans), citations
+  (18/18, untouched), and all LaTeX environments remain balanced.
