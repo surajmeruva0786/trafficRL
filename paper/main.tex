@@ -257,21 +257,6 @@ Xiao et al.\ 2026~\cite{xiao2026survey}
 \label{sec:arch}
 % ---------------------------------------------------------------
 
-This work follows a progressive development trajectory, beginning with a
-standard DQN as a proof-of-concept on a single four-way intersection and
-advancing through multi-head specialization, multi-agent grid scaling, and
-ultimately real-world corridor deployment with fine-tuning. This staged
-approach enables validation at each level of complexity before proceeding to
-the next, so that observed performance gains can be attributed to the
-specific architectural change introduced at each stage. Across all five
-stages, the same information flow applies: the SUMO environment produces a
-9-dimensional state, a shared trunk encodes it, a regime classifier
-generates soft weights, three specialized Q-heads compute per-regime
-Q-values, soft gating blends them into $Q_{\text{blend}}$, and the
-resulting greedy action is applied back to the environment, producing the
-next state and reward; this architecture is presented in full detail below
-(Fig.~\ref{fig:mhdqn_arch}).
-
 \subsection{Overall Development Pipeline}
 
 The system was developed through five progressive stages: Stage~1, a
@@ -280,7 +265,9 @@ Stage~2, the full MH-DQN on that same single intersection (200 episodes);
 Stage~3, multi-agent scaling to a $3\times3$ grid of nine junctions (200
 episodes); Stage~4, direct transfer to a real-world six-junction corridor
 (100 episodes); and Stage~5, fine-tuning of that corridor deployment (100
-episodes). Each stage builds directly on the preceding one.
+episodes). Each stage builds directly on the preceding one, so that
+observed performance gains can be attributed to the specific architectural
+change introduced at each stage.
 
 \textbf{Episode budget rationale.}
 Stages~1--3 are each allocated 200 training episodes because the agents
@@ -400,9 +387,14 @@ a multi-objective reward with regime-switching dynamics.
 
 \subsection{System Architecture and Methodology}
 
-The system architecture and its training methodology are described in
-two parts below: the MH-DQN architecture itself, and the objective used
-to train it.
+Across all five stages, the same information flow applies: the SUMO
+environment produces a 9-dimensional state, a shared trunk encodes it, a
+regime classifier generates soft weights, three specialized Q-heads
+compute per-regime Q-values, soft gating blends them into
+$Q_{\text{blend}}$, and the resulting greedy action is applied back to
+the environment, producing the next state and reward. The two parts
+below describe this architecture in full detail: the MH-DQN architecture
+itself, and the objective used to train it.
 
 \subsubsection{Multi-Head DQN Architecture}
 
