@@ -243,7 +243,7 @@ presentation, metadata, or a technical/formatting fix.
   preamble, since after this change no figure in the document draws
   with TikZ anymore.
 
-## 9. Figure 1 caption shortened
+## 14. Figure 1 caption shortened
 **Commit:** `ce2a7a8`
 
 - Trimmed the Figure 1 caption down to a single sentence: "Three
@@ -254,3 +254,64 @@ presentation, metadata, or a technical/formatting fix.
   multi-head architecture — that reasoning is still made in the
   surrounding Introduction prose, so nothing is lost, only de-duplicated
   out of the caption.
+
+## 15. Related Work refreshed with 2022-2026 literature
+**Commit:** `903f05d`
+
+- The RL-TSC portion of Section II and Table 1 previously cited only
+  2015-2020 work (Mnih 2015 DQN, IntelliLight 2018, Double/Dueling DQN
+  2016, Chu 2020 multi-agent RL, Mannion 2018 transfer learning, Jacobs
+  1991 mixture-of-experts, Haydari 2022 survey). Replaced these with
+  eight verified papers from 2022-2026, sourced via live web search and
+  cross-checked against arXiv/publisher listings for correct authors,
+  venues, and years before citing:
+  - Chen, Fang, and Sadeh, "The Real Deal" (arXiv:2206.11996, 2022) —
+    review of RL-TSC field-deployment barriers.
+  - Mei, Lei, Da, Shi, and Wei, "LibSignal" (arXiv:2211.10649, 2022;
+    *Machine Learning*, 2023) — open cross-simulator RL-TSC benchmark.
+  - Zhao, Dong, Cao, and Chen, DRL-TSC survey (*Eng. Appl. Artif.
+    Intell.*, vol. 133, art. 108100, 2024).
+  - Jiang et al., "X-Light" (IJCAI 2024) — transformer-on-transformer
+    meta-RL for cross-city transfer.
+  - Yao, Sun, Lu, Wang, and Yu, mixture-of-experts SAC for connected/
+    automated-vehicle highway decisions (*Chin. J. Mech. Eng.*, vol. 38,
+    no. 1, 2025) — used in place of Jacobs 1991 to make the
+    specialized-sub-policy argument with a recent, traffic-adjacent RL
+    result instead of the 1991 foundational MoE paper.
+  - Yuan, Lai, and Liu, "CoLLMLight" (arXiv:2503.11739, 2025; ICLR 2026
+    poster) — cooperative LLM agents for network-wide TSC.
+  - Zhang, Nassir, Chan, and Haghani, "MA2B-DDQN" (arXiv:2602.02959,
+    2026) — equity-aware action-branching double DQN.
+  - Xiao et al., RL-TSC survey (*Artif. Intell. Rev.*, vol. 59, no. 5,
+    2026).
+  Two of the eight (Zhang et al. and Xiao et al.) are 2026 publications,
+  satisfying the request to visibly relate this work to the most
+  current literature.
+- Rewrote the "Reinforcement Learning for Traffic Signal Control"
+  subsection's three paragraphs around these works and rebuilt Table 1's
+  eight rows (Author/Year, Approach, Limitation) so each entry's stated
+  limitation is the one this paper's regime-aware multi-head
+  architecture actually addresses, rather than reusing the old
+  algorithm-history framing (Double DQN, Dueling DQN, PER as isolated
+  algorithmic refinements).
+  Also updated two citations in the Introduction (the general
+  congestion-cost claim and the "single policy underperforms a
+  specialized one" claim) to point at the new survey and
+  mixture-of-experts references instead of the retired 2018/2020
+  citations.
+- Left the classical ATSC subsection (SCOOT, SCATS, model predictive
+  control) and citations used elsewhere in the paper for algorithmic or
+  tooling foundations — Mnih 2015 (DQN, still needed for the Training
+  Objective section), Sutton & Barto, Watkins Q-learning, Adam, PyTorch,
+  SUMO, and CoLight (cited in Future Work) — untouched, since those are
+  method/tooling foundations rather than competing TSC approaches being
+  surveyed in Table 1.
+- One stray citation of the removed `liang2019deep` key in the classical
+  ATSC paragraph (unrelated to the RL subsection, about MPC models being
+  hard to maintain in the field) was repointed to Chen et al. 2022,
+  which makes the same practical-deployment argument. Verified with a
+  scripted check that every `\cite{}` key in `main.tex` now resolves to
+  a defined `\bibitem{}` and vice versa, and that all table/figure/
+  bibliography LaTeX environments remain balanced.
+- Net bibliography size: 22 entries before this change, 18 after (12
+  outdated entries removed, 8 added).
