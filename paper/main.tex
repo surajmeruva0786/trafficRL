@@ -24,7 +24,7 @@
 
 \author{Suraj~Meruva,~\IEEEmembership{Department~of~DSAI,}
         Boini~Abhiram,~\IEEEmembership{Department~of~DSAI,}
-        and~Avantika~Singh,~\IEEEmembership{Senior~Member,~IEEE}%
+        and~Dr. Avantika~Singh,~\IEEEmembership{Department of DSAI, Senior~Member,~IEEE}%
 \thanks{Manuscript received ; revised .}%
 \thanks{S.~Meruva, B.~Abhiram, and A.~Singh are with the Department of Data
 Science and Artificial Intelligence, Indian Institute of Information
@@ -94,8 +94,8 @@ conditions become more complex or unpredictable.
 
 Most existing RL-based traffic signal controllers, however, rely on a single
 policy network trained to handle all traffic conditions. This assumption
-overlooks an important characteristic of urban traffic, illustrated in
-Fig.~\ref{fig:traffic_regimes}: traffic exhibits qualitatively different
+overlooks an important characteristic of urban traffic as illustrated in
+Fig.~\ref{fig:traffic_regimes}: different traffic exhibits qualitatively different
 behavior depending on demand. A nearly empty road, a moderately congested
 one, and a fully saturated one each call for a distinct control strategy. A
 single policy can achieve reasonable average performance across these
@@ -109,7 +109,7 @@ regime~\cite{yao2025moesac}.
 \centering
 \includegraphics[width=3.4in]{fig1RL.png}
 \caption{Three operational regimes at a signalized intersection. Each regime
-is characterized by a distinct queue length and waiting time range.}
+is characterized by a distinct features.}
 \label{fig:traffic_regimes}
 \end{figure}
 
@@ -164,7 +164,7 @@ network.
 \subsection{Reinforcement Learning for Traffic Signal Control}
 
 Deep reinforcement learning has emerged as a prominent data-driven
-alternative to the methods above. Mnih et al.~\cite{mnih2015human}
+alternative to the aforementioned techniques. Mnih et al.~\cite{mnih2015human}
 demonstrated that DQN achieves strong performance on complex sequential
 decision tasks, establishing the algorithmic foundation for subsequent
 RL-based traffic signal control (RL-TSC) work. Chen et
@@ -385,25 +385,20 @@ and $\gamma=0.95$ in Stages~2--5 (MH-DQN). This slight reduction in later
 stages prioritizes near-term congestion relief and stabilizes training under
 a multi-objective reward with regime-switching dynamics.
 
-\subsection{System Architecture and Methodology}
+% ---------------------------------------------------------------
+\section{System Architecture and Methodology}
+\label{sec:methodology}
+% ---------------------------------------------------------------
 
-Across all five stages, the same information flow applies: the SUMO
-environment produces a 9-dimensional state, a shared trunk encodes it, a
-regime classifier generates soft weights, three specialized Q-heads
-compute per-regime Q-values, soft gating blends them into
-$Q_{\text{blend}}$, and the resulting greedy action is applied back to
-the environment, producing the next state and reward. The two parts
-below describe this architecture in full detail: the MH-DQN architecture
-itself, and the objective used to train it.
+Across all five stages, the architecture and information flow detailed in Fig.~\ref{fig:mhdqn_arch} is applied. The system processes a 9-dimensional state vector ($s$) through two parallel pathways. First, the raw state feeds directly into a Regime Classifier that outputs soft gating probabilities $(p_1, p_2, p_3)$. Second, the state passes through a Shared Encoder to extract common features, which are then routed to three independent Q-Heads (Low, Medium, and High) to produce regime-specific Q-values ($Q_1, Q_2, Q_3$). A Soft Gating block mathematically blends these outputs by computing the weighted sum $Q_{\text{blend}} = \sum_{k=1}^3 p_k \cdot Q_k$. The final action $a$ is selected via $\text{argmax}_a Q_{\text{blend}}$. During training, transitions are sampled from a Global Replay Buffer $\mathcal{D}$. A joint training loss computes the TD-error between $Q_{\text{blend}}$ and a unified Target Network, while a separate classifier loss supervises the Regime Classifier using threshold heuristics ($y_{\text{true}}$). Gradients flow backwards to update all components simultaneously.
 
-\subsubsection{Multi-Head DQN Architecture}
+\subsection{Multi-Head DQN Architecture}
 
 The MH-DQN architecture comprises three tightly coupled components.
-Fig.~\ref{fig:mhdqn_arch} illustrates the complete architecture.
 
 \textbf{1) Shared State Encoder.}
-Two fully-connected layers (256 units, ReLU), shared across all Q-heads and
-the regime classifier. This shared trunk (i) reduces total parameter count
+Two fully-connected layers (256 units, ReLU), shared across all three Q-heads.
+This shared trunk (i) reduces total parameter count
 relative to three fully independent networks, (ii) prevents redundant
 feature learning, and (iii) makes transfer learning straightforward: the
 shared encoder weights from Stage~2 are directly reused in Stages~4 and~5.
@@ -468,51 +463,51 @@ the decreasing phase-change ratio observed across stages: $2.32\times$
 \includegraphics[width=6.8in]{fig3RL.png}
 \caption{Detailed MH-DQN architecture. The shared encoder extracts a common
 feature representation. The regime classifier outputs soft weights
-$(p_1,p_2,p_3)$. Three independent Q-heads, each with parameters $\theta_k$,
-sampling from its own replay subset $\mathcal{D}_k$ and synchronized against
-a target network $\theta_k^{-}$ every 100 steps, produce regime-specific
-Q-values. Soft gating forms $Q_{\text{blend}}$ as a weighted sum, from which
-the greedy action is selected.}
+$(p_1,p_2,p_3)$. The three Q-heads, each with parameters $\theta_k$,
+produce regime-specific Q-values. Soft gating forms $Q_{\text{blend}}$ as
+a weighted sum, from which the greedy action is selected. The network is
+trained jointly by sampling from a global replay buffer, and a unified target
+network is synchronized every 100 steps.}
 \label{fig:mhdqn_arch}
 \end{figure*}
 
-\subsubsection{Training Objective}
+\subsection{Training Objective}
 
 The training objective is grounded in temporal difference (TD)
-learning~\cite{watkins1992qlearning,mnih2015human}. Each Q-head $k$ is
-trained independently, on
-transitions drawn from its regime-specific subset $\mathcal{D}_k \subseteq
-\mathcal{D}$ of the shared replay buffer $\mathcal{D}$, by minimizing the
-mean-squared TD error:
+learning~\cite{watkins1992qlearning,mnih2015human}. Rather than training
+each Q-head independently on partitioned subsets of experience, the entire
+multi-head architecture is trained jointly end-to-end. Transitions are drawn
+from a single global replay buffer $\mathcal{D}$, and the network minimizes
+the mean-squared TD error computed on the final blended Q-values:
 \begin{equation}
 \label{eq:td}
-\mathcal{L}(\theta_k) = \mathbb{E}_{(s,a,r,s')\sim\mathcal{D}_k}\!\left[\!\left(
-    \underbrace{r + \gamma\max_{a'}Q(s',a';\,\theta_k^{-})}_{\text{TD target (fixed)}}
-    -\;\underbrace{Q(s,a;\,\theta_k)}_{\text{current prediction}}
+\mathcal{L}(\theta) = \mathbb{E}_{(s,a,r,s')\sim\mathcal{D}}\!\left[\!\left(
+    \underbrace{r + \gamma\max_{a'}Q_{\text{blend}}(s',a';\,\theta^{-})}_{\text{TD target (fixed)}}
+    -\;\underbrace{Q_{\text{blend}}(s,a;\,\theta)}_{\text{current prediction}}
 \right)^{\!2}\right]
 \end{equation}
-where $Q(s,a;\theta_k)$ is the current Q-value prediction; $r$ is the
+where $Q_{\text{blend}}(s,a;\theta)$ is the soft-gated Q-value prediction; $r$ is the
 immediate reward defined in~\eqref{eq:reward}; $\gamma$ is the discount
-factor; $\max_{a'}Q(s',a';\theta_k^{-})$ is the bootstrapped future value
-estimated by the target network; and $\theta_k^{-}$ is a periodically
-synchronized copy of $\theta_k$ (updated every 100 steps) that decouples
-the regression target from the parameters being trained, preventing the
+factor; $\max_{a'}Q_{\text{blend}}(s',a';\theta^{-})$ is the bootstrapped future value
+estimated by the unified target network; and $\theta^{-}$ represents the
+periodically synchronized copy of all network parameters (updated every 100 steps)
+that decouples the regression target from the parameters being trained, preventing the
 network from chasing a moving target.
 
-All Q-heads draw from the same underlying replay buffer $\mathcal{D}$, but
-each is trained only on its assigned regime subset $\mathcal{D}_k$ and
-maintains independent parameter sets $\theta_k$ and target networks
-$\theta_k^{-}$. Training uses Adam~\cite{kingma2015adam} (learning rate
-$10^{-3}$ for
-Stages~1--3; $5\times10^{-5}$ for fine-tuning in Stages~4--5) and
+Because the TD error is computed on the blended output $Q_{\text{blend}}$, gradients propagate
+backwards through the soft-gating mechanism. This allows all three Q-heads, the
+shared state encoder, and the regime classifier to update simultaneously from
+each transition. Training uses Adam~\cite{kingma2015adam} (learning rate
+$10^{-3}$ for Stages~1--3; $5\times10^{-5}$ for fine-tuning in Stages~4--5) and
 $\epsilon$-greedy exploration decaying from 1.0 to 0.05 (from 0.3 to 0.05
 for fine-tuning stages).
 
 The TD objective in~\eqref{eq:td} follows the standard formulation
 introduced by Mnih et al.~\cite{mnih2015human}; its contribution here lies
-in being applied independently to each of the $K$ regime-specialized
-heads. The regime-aware reward in~\eqref{eq:reward} and the soft-gating
-rule in~\eqref{eq:blend}, by contrast, are formulated specifically for the
+in being applied to the dynamically gated output of the regime-specialized
+heads, allowing the gating weights to dictate how much each head learns from
+any given experience. The regime-aware reward in~\eqref{eq:reward} and the soft-gating
+rule in~\eqref{eq:blend} are formulated specifically for the
 MH-DQN architecture proposed in this paper.
 
 % ---------------------------------------------------------------
