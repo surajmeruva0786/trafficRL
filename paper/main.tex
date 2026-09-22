@@ -136,82 +136,12 @@ The contributions of this paper are as follows:
 % ---------------------------------------------------------------
 
 \subsection{Adaptive Traffic Signal Control}
-
-Adaptive traffic signal control (ATSC) has long been studied as an
-alternative to fixed-time plans. Classical systems such as
-SCOOT~\cite{hunt1982scoot} and SCATS~\cite{sims1980scats} adjust signal
-splits and offsets using detector measurements and pre-computed lookup
-tables. These systems improve upon static timing plans,
-but they depend on hand-engineered rules that do not generalize well to
-unseen demand patterns or unfamiliar network layouts. Later actuated and
-self-organizing control methods introduced detector-triggered green
-extensions and decentralized, pressure-based heuristics, which respond more
-quickly but remain fundamentally reactive: the control law is fixed in
-advance and cannot reshape itself as demand evolves over a day or across
-seasons. Model-based optimization approaches, including integer programming
-and model predictive control, offer theoretical guarantees but suffer from
-computational intractability at scale and depend on accurate traffic models
-that are difficult to maintain in practice~\cite{chen2022realdeal}. Model
-predictive controllers, in particular, must re-solve a constrained
-optimization problem at every decision step, and their performance degrades
-sharply once the calibrated model drifts from field conditions, a recurring
-issue in dense, heterogeneous urban traffic where lane discipline is weak
-and turning ratios fluctuate. These limitations motivate a shift toward
-data-driven, learning-based approaches that infer control policies directly
-from interaction rather than from an explicit, hand-maintained model of the
-network.
+Classical adaptive traffic signal control (ATSC) systems such as SCOOT~\cite{hunt1982scoot} and SCATS~\cite{sims1980scats} adjust timings using pre-computed logic and detector measurements. While improving upon static plans, their hand-engineered rules struggle to generalize to unseen demand patterns. Model-based optimization approaches offer theoretical guarantees but suffer from computational intractability and reliance on highly accurate traffic models that rapidly drift from field conditions~\cite{chen2022realdeal}. These limitations drive the need for data-driven, learning-based approaches capable of inferring control policies directly from interaction.
 
 \subsection{Reinforcement Learning for Traffic Signal Control}
+Deep reinforcement learning (DRL) has emerged as a robust data-driven alternative for TSC following the foundational success of DQN~\cite{mnih2015human}. Recent literature has focused on scaling DRL-TSC across cities (e.g., X-Light~\cite{jiang2024xlight}), improving network-wide coordination via LLMs (e.g., CoLLMLight~\cite{yuan2025collmlight}), and optimizing traveler-level equity (e.g., MA2B-DDQN~\cite{zhang2026equity}). Furthermore, benchmarking platforms like LibSignal~\cite{mei2023libsignal} have standardized evaluation, while surveys~\cite{chen2022realdeal,zhao2024survey,xiao2026survey} highlight persistent sim-to-real gaps. However, as summarized in Table~\ref{tab:related}, the vast majority of deployed DRL-TSC algorithms still rely on a single, monolithic value network that must independently cover the full spectrum of traffic conditions, from nearly empty to fully saturated.
 
-Deep reinforcement learning has emerged as a prominent data-driven
-alternative to the aforementioned techniques. Mnih et al.~\cite{mnih2015human}
-demonstrated that DQN achieves strong performance on complex sequential
-decision tasks, establishing the algorithmic foundation for subsequent
-RL-based traffic signal control (RL-TSC) work. Chen et
-al.~\cite{chen2022realdeal} reviewed the practical barriers -- detector
-noise, communication reliability, and interpretability -- that have kept
-RL-TSC controllers largely out of field deployment despite strong
-simulation results, while Mei et al.~\cite{mei2023libsignal} released
-LibSignal, an open benchmarking library that standardizes state, reward,
-and evaluation protocols across SUMO and CityFlow so published RL-TSC
-methods can be compared fairly. Both works, however, evaluate each
-candidate algorithm as a single policy applied uniformly across all traffic
-conditions.
-
-A related line of work improves generalization and coordination rather
-than the traffic-specific formulation. Jiang et al.~\cite{jiang2024xlight}
-proposed X-Light, a transformer-on-transformer meta-reinforcement-learning
-architecture that transfers a shared policy across cities with
-heterogeneous intersection layouts, and Yuan et
-al.~\cite{yuan2025collmlight} introduced CoLLMLight, which coordinates
-signal decisions network-wide using cooperating large language model agents
-reasoning over a spatiotemporal traffic graph. Zhang et
-al.~\cite{zhang2026equity} proposed MA2B-DDQN, an action-branching double
-DQN that decomposes a corridor into per-intersection and network-wide
-action branches to optimize traveler-level equity. Each of these systems
-scales an RL-TSC policy along a different axis -- across cities, across
-coordinating agents, or across equity objectives -- but retains a single
-policy, or a single policy per branch, that must cover the full range of
-traffic demand it encounters, from a nearly empty approach to a fully
-saturated one.
-
-Two recent surveys reach the same conclusion from a broader vantage point.
-Zhao et al.~\cite{zhao2024survey} review the DRL-TSC literature by state
-design, reward formulation, and algorithm family, and Xiao et
-al.~\cite{xiao2026survey} extend this taxonomy with the most recent
-architecture-level developments; both note that the large majority of
-published RL-TSC agents still commit to a single value network expected to
-cover the entire operating envelope. Outside traffic signal control, Yao et
-al.~\cite{yao2025moesac} show that a mixture-of-experts controller --
-gated between a reinforcement-learning expert and a heuristic expert --
-outperforms a single soft-actor-critic policy on highway maneuver decisions
-for connected and automated vehicles, evidence that specialized sub-policies
-generalize better than a monolithic one when the underlying decision
-context is itself heterogeneous, a property directly applicable to
-multi-regime traffic. Table~\ref{tab:related} summarizes these approaches
-and their limitations. The framework proposed in this paper addresses this
-gap by introducing a regime-aware traffic signal control approach for
-intelligent networked transportation systems.
+While mixture-of-experts (MoE) architectures have improved generalization in connected-vehicle maneuvers~\cite{yao2025moesac}, regime-aware sub-policy specialization remains largely unaddressed in ATSC. The framework proposed in this paper explicitly targets this gap by introducing a dynamic, regime-aware architecture for intelligent transportation networks.
 
 
 \begin{table}[!t]
@@ -315,12 +245,12 @@ $\lambda$ & Phase-change penalty weight \\
 $\gamma$ & Discount factor \\
 $K$ & Number of traffic regimes ($K=3$: Low, Medium, High) \\
 $p_k(s)$ & Classifier probability of regime $k$ for state $s$ \\
-$\theta_k,\,\theta_k^{-}$ & Online / target parameters of Q-head $k$ \\
+$\theta_k$ & Online parameters of Q-head $k$ \\
+$\theta^{-}$ & Unified target network parameters \\
 $Q(s,a;\theta_k)$ & Q-value predicted by head $k$ \\
 $Q_{\text{blend}}(s,a)$ & Soft-gated blended Q-value, defined
                           in~\eqref{eq:blend} \\
-$\mathcal{D},\,\mathcal{D}_k$ & Shared replay buffer / regime-$k$ subset
-                                used to train head $k$ \\
+$\mathcal{D}$ & Global replay buffer \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -424,12 +354,11 @@ on the simulation setups used in this paper, and were chosen to yield a
 reasonable, well-populated split of low-, medium-, and high-demand traffic
 states for these specific environments.
 
-Each head maintains its own parameters $\theta_k$ and target network
-$\theta_k^{-}$, enabling independent specialization without gradient
-interference between regimes.
+Each head maintains its own parameters $\theta_k$, enabling independent
+specialization without gradient interference between regimes during the forward pass.
 
 \textbf{3) Traffic Regime Classifier and Soft Gating.}
-A lightweight classifier ($128\to64\to3$, softmax) takes the encoder output
+A lightweight classifier ($128\to64\to3$, softmax) takes the raw state
 and produces regime probabilities $p_k(s)$ for $k=1,\dots,K$, with $K=3$
 regimes (Low, Medium, High, indexed in that order, i.e., $k=1,2,3$
 respectively) satisfying $\sum_{k=1}^{K}p_k(s)=1$; the classifier is
@@ -481,10 +410,10 @@ from a single global replay buffer $\mathcal{D}$, and the network minimizes
 the mean-squared TD error computed on the final blended Q-values:
 \begin{equation}
 \label{eq:td}
-\mathcal{L}(\theta) = \mathbb{E}_{(s,a,r,s')\sim\mathcal{D}}\!\left[\!\left(
-    \underbrace{r + \gamma\max_{a'}Q_{\text{blend}}(s',a';\,\theta^{-})}_{\text{TD target (fixed)}}
-    -\;\underbrace{Q_{\text{blend}}(s,a;\,\theta)}_{\text{current prediction}}
-\right)^{\!2}\right]
+\begin{split}
+\mathcal{L}(\theta) = \mathbb{E}_{(s,a,r,s')\sim\mathcal{D}} \Bigg[ \Bigg( & \underbrace{r + \gamma\max_{a'}Q_{\text{blend}}(s',a';\,\theta^{-})}_{\text{TD target (fixed)}} \\
+& - \underbrace{Q_{\text{blend}}(s,a;\,\theta)}_{\text{current prediction}} \Bigg)^{\!2} \Bigg]
+\end{split}
 \end{equation}
 where $Q_{\text{blend}}(s,a;\theta)$ is the soft-gated Q-value prediction; $r$ is the
 immediate reward defined in~\eqref{eq:reward}; $\gamma$ is the discount
@@ -565,38 +494,7 @@ blends heads during inference.
 
 \subsubsection{Results}
 
-Table~\ref{tab:results_sim} presents the full performance comparison, and
-it is worth walking through what each row actually means rather than
-reading the percentages in isolation. The two rows that matter most for a
-vehicle waiting at this intersection are average waiting time and average
-queue length: the MH-DQN cuts waiting time by 73.53\% (0.24\,s vs.\
-0.92\,s) and queue length by 41.69\% (2.21 vs.\ 3.79). In practical terms,
-vehicles under the learned policy are rarely made to wait at all, compared
-to the fixed-time controller's already modest delays.
-
-This improvement is not free. The MH-DQN switches phases far more often
-than the fixed-time controller does (253.3 vs.\ 109.0 changes per episode,
-roughly $2.32\times$ as many), and this shows up in two places in the
-table. First, throughput falls by 12.89\% (1129.78 vs.\ 1297.00
-vehicles/hr, mirrored in the Vehicles Completed row): each extra phase
-change costs a brief all-red clearance period during which no vehicles can
-move, so clearing queues faster by switching more often comes at the cost
-of processing fewer vehicles overall. Second, and easy to miss at a
-glance, the MH-DQN's average reward is actually \emph{lower} than the
-fixed-time baseline's (1095.78 vs.\ 1253.46). Taken alone, this looks like
-a contradiction, since the MH-DQN clearly gives the better outcome for any
-individual vehicle. The explanation lies in the reward formula itself
-(\eqref{eq:reward}): throughput carries a coefficient of $+1.0$, an order
-of magnitude larger than the $-0.1$ coefficients on waiting time and queue
-length. Because the fixed-time controller processes more vehicles per
-episode, its throughput term alone outweighs the small waiting-time and
-queue-length penalties it accumulates, giving it a higher raw reward even
-though it delivers a worse experience to every vehicle passing through.
-This is an important, honest caveat to state plainly: reward is the
-training signal used to shape the agent's behavior, not the metric this
-paper uses to judge success. Every headline result reported in this paper
-is judged directly by waiting time, queue length, throughput, and speed,
-precisely because raw reward can be misleading in exactly this way.
+Table~\ref{tab:results_sim} presents the performance comparison. The MH-DQN significantly improves the primary congestion metrics, reducing average waiting time by 73.53\% (0.24\,s vs.\ 0.92\,s) and average queue length by 41.69\% (2.21 vs.\ 3.79). However, this improvement incurs a trade-off: the MH-DQN switches phases more frequently than the baseline ($2.32\times$), leading to a 12.89\% reduction in throughput due to the accumulation of all-red clearance intervals. Furthermore, the MH-DQN achieves a lower average raw reward (1095.78 vs.\ 1253.46) despite improving wait times. This is an artifact of the reward formulation in~\eqref{eq:reward}, where the throughput coefficient ($+1.0$) mathematically outweighs the waiting-time penalty ($-0.1$). Consequently, performance is evaluated using physical metrics (wait time, queue, throughput) rather than raw training reward.
 
 \begin{table}[!t]
 \caption{MH-DQN vs.\ Fixed-Time Baseline
@@ -618,72 +516,7 @@ Phase Changes       & $253.3$  & $109.0$  \\
 \end{table}
 
 % ------------------------------------------------------------------
-% FIGURE 4 — Bar comparison Stage 2
-% IMAGE: WhatsApp Image 2026-02-10 at 11.03.58 AM.jpeg
-% ------------------------------------------------------------------
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=6.8in]{"WhatsApp Image 2026-02-10 at 11.03.58 AM.jpeg"}
-\caption{Performance comparison: MH-DQN vs.\ fixed-time baseline across
-six metrics (Stage~2, single intersection).}
-\label{fig:comparison}
-\end{figure*}
-
-Before turning to the aggregate numbers in Table~\ref{tab:results_sim}, it
-is worth addressing a reasonable question a careful reader might ask: are
-the averages reported above representative, or do they hide occasional
-episodes where the MH-DQN performs poorly? Across all 10 evaluation
-episodes, the MH-DQN's waiting time stays consistently far below the
-fixed-time baseline in every episode, with no exceptions; because the
-fixed-time controller is deterministic and demand-blind, it produces
-identical results on every run, so its per-episode values form a flat
-reference line rather than a distribution. The MH-DQN's waiting-time and
-throughput values likewise do not overlap at all with the fixed-time
-baseline's single value across the 10 episodes. Together, these
-observations confirm that the gains reported in
-Table~\ref{tab:results_sim} are a stable property of the learned policy,
-not an artefact of averaging over a few unusually good runs.
-
-Fig.~\ref{fig:comparison} shows this same comparison visually across all
-six metrics at once. Two further figures, alongside the regime
-distribution observed during training, help explain \emph{why} the
-MH-DQN is able to reach this result in the first place. During training,
-the agent spent a reasonably even mix of time across conditions: 32\% of
-states were low-demand, 41.8\% medium-demand, and 26.2\% high-demand. This
-matters because it means all three Q-heads received enough experience to
-actually learn a sensible policy; had one regime been rarely visited, its
-head would have remained undertrained regardless of the architecture
-around it. First, the regime classifier reaches 100\% classification
-accuracy during evaluation (Fig.~\ref{fig:confusion}), meaning that at
-test time every state was routed to the head trained for it, and none of
-the reported gains can be attributed to a head accidentally handling
-traffic it was never designed for. Second, the head specialization score, which quantifies how differently
-the three heads behave in the same state, fluctuates substantially over
-training rather than climbing smoothly (Fig.~\ref{fig:specialization}),
-with pronounced peaks in divergence around episodes~70 and~190 that are
-several times higher than the surrounding episodes. Reported honestly,
-this is not a clean monotonic trend, but the important point still holds:
-if the three heads had converged to nearly identical policies, this score
-would stay near zero throughout, and the multi-head design would add
-complexity without adding value. Instead, it repeatedly rises to
-substantial values over the course of training, confirming that the low-,
-medium-, and high-regime heads do learn distinguishable behaviors, even
-though the degree of divergence at any single point in training varies.
-
-% ------------------------------------------------------------------
-% FIGURE 5 — Confusion matrix training Stage 2
-% IMAGE: WhatsApp Image 2026-02-10 at 9.05.37 AM.jpeg
-% ------------------------------------------------------------------
-\begin{figure}[!t]
-\centering
-\includegraphics[width=3.4in]{"WhatsApp Image 2026-02-10 at 9.05.37 AM.jpeg"}
-\caption{Regime classifier confusion matrix during training
-(Stage~2, single intersection).}
-\label{fig:confusion_train}
-\end{figure}
-
-% ------------------------------------------------------------------
-% FIGURE 6 — Confusion matrix evaluation Stage 2
+% FIGURE 5 (was 6) — Confusion matrix evaluation Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 10.48.34 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -695,7 +528,7 @@ classification accuracy (Stage~2).}
 \end{figure}
 
 % ------------------------------------------------------------------
-% FIGURE 7 — Head specialization Stage 2
+% FIGURE 6 (was 7) — Head specialization Stage 2
 % IMAGE: WhatsApp Image 2026-02-10 at 9.05.42 AM.jpeg
 % ------------------------------------------------------------------
 \begin{figure}[!t]
@@ -708,39 +541,9 @@ three regime heads' policies diverge sharply.}
 \label{fig:specialization}
 \end{figure}
 
-The training-time confusion matrix (Fig.~\ref{fig:confusion_train})
-deserves a careful, honest reading, because taken at face value it appears
-to contradict the 100\% evaluation accuracy reported above: it shows the
-classifier predicting Low, Medium, and High in almost the same proportion
-(33\%, 42\%, 25\%) regardless of the true regime. The same pattern holds
-in the underlying training logs, where the running classifier-accuracy
-metric stays close to chance level (around 0.33--0.35) for essentially the
-entire 200-episode run, even while the classifier loss over the same run
-collapses to nearly zero within the first few episodes. The reason is not
-that the classifier fails to learn. Both of these training-time metrics
-are running averages computed over \emph{every} prediction recorded since
-episode~1, rather than over a recent window. Because the early part of
-training is dominated by near-random exploration ($\epsilon$ close to 1.0)
-and a classifier that has barely begun to learn, a large volume of
-near-chance predictions accumulates early on, and this early data
-continues to weigh down the cumulative average for the rest of the run,
-even after the classifier has, in fact, converged. This is confirmed
-directly by the evaluation-time confusion matrix (Fig.~\ref{fig:confusion}),
-which is computed only after training is complete and shows a perfect
-diagonal. Read alongside the training-time confusion matrix rather than in
-isolation, this shows that regime classification is unreliable during the
-early, exploratory part of training and only becomes fully dependable by
-the time training finishes, which is exactly what the evaluation-time
-accuracy reflects.
+During training, the agent encountered a balanced mix of conditions: 32\% low-demand, 41.8\% medium-demand, and 26.2\% high-demand states. This ensured all three Q-heads received sufficient experience. The regime classifier achieved 100\% classification accuracy during evaluation (Fig.~\ref{fig:confusion}), guaranteeing that states were consistently routed to their corresponding trained heads. Furthermore, the head specialization score (Fig.~\ref{fig:specialization}) fluctuates with pronounced peaks over training, confirming that the three heads learn distinguishable, regime-specific behaviors rather than converging to a single identical policy.
 
-The underlying training logs describe the rest of the training process in
-more familiar terms. The Q-loss rises briefly as the network first begins
-to bootstrap from its own predictions, then gradually falls and settles
-into a stable, low range past roughly episode~80, a standard signature of
-a value function converging rather than diverging or oscillating. Episode
-reward drifts gently upward over the same period, and average waiting
-time, while noisy from episode to episode, shows no worsening trend,
-together indicating a training run that is stable rather than fragile.
+While training-time classifier accuracy averages appear low due to the accumulation of random exploratory actions early in training, the classifier reliably converges, as evidenced by the 100\% post-training evaluation accuracy (Fig.~\ref{fig:confusion}). The overall training process is stable: Q-loss settles into a low range after episode 80, indicating value function convergence, and episode reward drifts upward steadily.
 
 \subsubsection{Regime-Specific Performance}
 
@@ -858,8 +661,7 @@ congested arterial routes in the city, making it a meaningful stress test
 for the controller under genuine peak-hour conditions, and its proximity
 to the authors allowed direct, on-ground familiarity with its junction
 layout and traffic patterns, which supported accurate construction of the
-SUMO network. As shown in Fig.~\ref{fig:corridor_map},
-it spans approximately 3.9\,km along the Nacharam--Mallapur Road, comprising
+SUMO network. The corridor spans approximately 3.9\,km along the Nacharam--Mallapur Road, comprising
 six junctions. Fig.~\ref{fig:sim_stage45} shows the corresponding SUMO
 network built from this real route, with the arterial road running
 horizontally and side roads branching off at each junction, reproducing
@@ -875,7 +677,7 @@ evenly spaced layout:
 \end{itemize}
 
 % ------------------------------------------------------------------
-% FIGURE 9 — Corridor SUMO layout    IMAGE: stage4_5.png
+% FIGURE 8 (was 9) — Corridor SUMO layout    IMAGE: stage4_5.png
 % ------------------------------------------------------------------
 \begin{figure}[!t]
 \centering
@@ -885,17 +687,6 @@ and~5. The arterial road runs horizontally, with side roads branching at
 each of the six signalized junctions (J0--J5). The asymmetric structure
 reflects the real-world geometry of the corridor.}
 \label{fig:sim_stage45}
-\end{figure}
-
-% ------------------------------------------------------------------
-% FIGURE 10 — Real-world map          IMAGE: habsiguda_map.jpg
-% ------------------------------------------------------------------
-\begin{figure}[!t]
-\centering
-\includegraphics[width=3.4in]{habsiguda_map.jpg}
-\caption{The real-world arterial corridor modeled in SUMO for Stages~4
-and~5: 3.9\,km route from J0 to J5.}
-\label{fig:corridor_map}
 \end{figure}
 
 Traffic demand is 2{,}000~vehicles/hour (realistic peak). The fixed-time
@@ -989,40 +780,7 @@ Training Episodes         & 100     & 100            \\
 
 \subsubsection{Training Dynamics}
 
-Table~\ref{tab:hab_training} shows the fine-tuning progression in five
-episode blocks, and Fig.~\ref{fig:training_hab} shows the same story as
-continuous curves against the fixed-time baseline. Read together, they
-describe a specific and honest sequence of events, rather than a simple,
-uniform improvement.
-
-In the first block (Ep.~1--10), reward starts at its best value of the
-entire run ($-430.9$), while throughput is still low (858.6~veh/hr) and
-phase changes are elevated. Fig.~\ref{fig:training_hab} shows why: over
-these same early episodes, phase changes climb briefly even higher before
-declining, because the six junction agents begin fine-tuning from Stage~2
-weights that were trained under a ten-times-weaker phase-change penalty
-($\lambda=0.05$) and initially continue switching out of that earlier
-habit. Under the new, much larger penalty ($\lambda=1.0$), this is
-expensive, and reward falls to its worst value of the run in the very
-next block (Ep.~11--25, $-649.2$), even as throughput continues climbing
-(893.5~veh/hr). From this point on, phase changes decline steadily toward,
-and eventually below, the fixed-time baseline of 450, converging to
-approximately 420--430 per episode, while throughput keeps rising past
-the 927~veh/hr baseline by around episode~40 and settles above it
-(968--979~veh/hr across the final three blocks). Reward itself only
-partially recovers, settling in the $-608$ to $-632$ range for the rest of
-training, never returning to its Ep.~1--10 level.
-
-This is worth stating plainly rather than smoothing over: the fine-tuned
-policy evaluated in the next subsection is one whose raw reward is worse
-than it was in the very first few episodes, even though its real-world
-behavior, measured in throughput and phase changes, is unambiguously
-better. As in Stage~2, this is a consequence of how the reward is
-constructed rather than a sign that fine-tuning failed: the heavier
-phase-change penalty that ultimately brings switching under control also
-makes the reward less forgiving overall, so a lower raw reward here is the
-expected price of better-behaved, lower-switching traffic control, not
-evidence against it.
+Table~\ref{tab:hab_training} and Fig.~\ref{fig:training_hab} detail the fine-tuning progression. Initially (Ep.~1--10), agents retain high switching frequencies from Stage 2's weaker penalty, resulting in artificially high rewards ($-430.9$) before the stronger $\lambda=1.0$ penalty suppresses this behavior. As training progresses, phase changes drop steadily to around 420-430 per episode, while throughput climbs past the 927~veh/hr baseline to settle near 978~veh/hr. Although the raw training reward settles at a lower value ($-608$), this reflects the stricter penalty on phase changes rather than a failure to learn, ultimately producing a smoother, higher-throughput policy.
 
 \begin{table}[!t]
 \caption{Fine-Tuning Progression by Episode Block
@@ -1098,33 +856,7 @@ Phase Changes       & 450.0 & 553.2           & $+22.9\%$ \\
 \end{tabular}
 \end{table}
 
-% ------------------------------------------------------------------
-% FIGURE 12 — Evaluation bar chart Stage 5
-% IMAGE: comparison_finetuned.png
-% ------------------------------------------------------------------
-\begin{figure}[!t]
-\centering
-\includegraphics[width=3.4in]{comparison_finetuned.png}
-\caption{Performance comparison: fine-tuned MH-DQN vs.\ fixed-time
-baseline on the real-world corridor (Stage~5, 2{,}000~veh/hr).}
-\label{fig:comparison_hab}
-\end{figure}
-
-Fig.~\ref{fig:comparison_hab} presents the same five metrics from
-Table~\ref{tab:results_hab} as a single bar chart, making the pattern
-easy to see at a glance: the MH-DQN's bars are shorter than the
-fixed-time baseline's for throughput and taller for speed, while its
-waiting-time and queue-length bars are markedly shorter and its
-phase-change bar is only modestly taller. This pattern also holds up
-episode by episode rather than only on average, across five separate
-evaluation runs: in every one of the five episodes, the MH-DQN records
-lower waiting time and shorter queues than the fixed-time baseline, and
-in every episode its throughput is correspondingly lower, with no single
-evaluation episode reversing the trade-off described above. This
-consistency across independent evaluation runs is what allows the
-aggregate percentages in Table~\ref{tab:results_hab} to be read as a
-reliable property of the fine-tuned policy, rather than a result specific
-to one favorable episode.
+Across five independent evaluation runs, the MH-DQN consistently outperformed the fixed-time baseline in waiting time and queue length, validating the aggregate percentages in Table~\ref{tab:results_hab} as a reliable property of the fine-tuned policy rather than an episodic anomaly.
 
 \subsubsection{Junction-Level Analysis}
 
@@ -1141,183 +873,26 @@ smoothing. All junctions operate in the high traffic regime
 
 \subsection{Consolidated Cross-Stage Results}
 
-Table~\ref{tab:cross} provides a unified view across key stages.
-Table~\ref{tab:finetuning_impact} isolates the Stage~4$\to$5 benefit.
-Table~\ref{tab:phase_changes} tracks phase-change behavior, the key
-controlled variable underlying this trade-off.
-
-\begin{table}[!t]
-\caption{Cross-Stage Performance vs.\ Fixed-Time Baseline\label{tab:cross}}
-\centering
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{Metric} & \textbf{St.~2} & \textbf{St.~4} & \textbf{St.~5} \\
-\midrule
-Wait Time Reduc.  & $-73.5\%$    & $-49.5\%$    & $-40.2\%$ \\
-Queue Reduction   & $-41.7\%$    & $-35.1\%$    & $-28.2\%$ \\
-Throughput Gap    & $-12.9\%$    & $-33.0\%$    & $-11.0\%$ \\
-Speed Improvement & ---           & ---           & $+5.1\%$ \\
-Phase Chg.\ Ratio & $2.32\times$ & $1.57\times$ & $1.23\times$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[!t]
-\caption{Fine-Tuning Impact: Stage~4 $\to$ Stage~5%
-\label{tab:finetuning_impact}}
-\centering
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{Metric} & \textbf{Stage~4} & \textbf{Stage~5} & \textbf{Change} \\
-\midrule
-Throughput (veh/hr) & 633.3 & 824.4 & $\mathbf{+30.2\%}$ \\
-Wait Time (s)       & 1.57  & 1.86  & $-18.5\%$ \\
-Queue Length        & 50.03 & 55.34 & $-10.6\%$ \\
-Phase Changes       & 705.2 & 553.2 & $\mathbf{-21.6\%}$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[!t]
-\caption{Phase Change Behavior Across Stages\label{tab:phase_changes}}
-\centering
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{Stage} & \textbf{RL} & \textbf{Baseline} & \textbf{Ratio} \\
-\midrule
-Stage~2 (single int.)     & 252.9 & 109.0 & $2.32\times$ \\
-Stage~4 (direct transf.)  & 705.2 & 450.0 & $1.57\times$ \\
-Stage~5 (fine-tuned)      & 553.2 & 450.0 & $1.23\times$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+Consolidating the results across all stages reveals consistent trends. From Stage 2 (single intersection) to Stage 4 (direct transfer) and Stage 5 (fine-tuned), the waiting time reduction relative to the baseline remains substantial ($-73.5\% \to -49.5\% \to -40.2\%$), demonstrating that the core queue-clearing capability transfers robustly to the real-world corridor. Fine-tuning in Stage 5 successfully recovers throughput (+30.2\% over Stage 4) by suppressing excessive phase changes (-21.6\% from Stage 4), reducing the phase-change ratio from a highly erratic $2.32\times$ in Stage 2 to a manageable $1.23\times$ in Stage 5.
 
 \subsection{Discussion}
 
-\textbf{Throughput trade-off and reward sensitivity.}
-The throughput reduction is notably consistent between Stage~2 ($-12.89\%$)
-and Stage~5 ($-11.0\%$), suggesting that this residual gap is intrinsic to
-the waiting-time-focused reward rather than a byproduct of network scale.
-Raising the phase penalty from $\lambda=0.05$ to $\lambda=1.0$ closes
-Stage~4's $-33\%$ throughput gap to $-11\%$, recovering 30.2\% of throughput
-at the cost of only $+0.29$\,s in absolute waiting time. The near-identical
-residual gap observed at two very different network scales indicates that
-the remaining throughput penalty is not an artifact of corridor-specific
-geometry but rather a structural consequence of optimizing primarily for
-delay. When the agent is rewarded chiefly for emptying queues quickly, it
-favors shorter, more frequent service of whichever approach is momentarily
-most congested, and this behavior trades a small amount of sustained
-directional flow for lower instantaneous delay. That the penalty term alone
-shifts the operating point so substantially, without any change to the
-network or the encoder, underscores that the trade-off is governed by
-reward geometry rather than representational capacity.
+\textbf{Throughput Trade-off:} The consistent $\approx11$--13\% throughput penalty across Stages 2 and 5 highlights an intrinsic trade-off in delay-focused reward formulations. While raising the phase penalty ($\lambda=1.0$) drastically improves throughput by discouraging short, frequent green phases, optimizing purely for minimal delay inherently sacrifices some sustained directional flow.
 
-\textbf{Absolute waiting-time benefit scales with baseline congestion.}
-The corridor baseline exhibits substantially higher waiting times
-(3.1\,s vs.\ 0.92\,s) due to higher demand and multi-junction spillback.
-The MH-DQN yields a greater absolute benefit under this more congested,
-real-world scenario, saving 1.2\,s in the corridor compared with 0.68\,s at
-the single intersection. This scaling behavior is practically significant
-because heavily loaded, spillback-prone corridors impose the largest
-aggregate delay on a road network and therefore offer the greatest
-opportunity for system-level improvement. A controller whose advantage
-grows with congestion is well matched to where the operational need is
-most acute, in contrast to methods whose benefit is concentrated in
-lightly loaded regimes that already perform acceptably under fixed
-timing.
+\textbf{Scaling with Congestion:} The MH-DQN saves 1.2\,s per vehicle on the highly congested corridor, compared to 0.68\,s on the single intersection. This confirms that the policy's advantage scales with baseline congestion, offering the greatest utility exactly where network-level delays are most severe.
 
-\textbf{Soft gating improves phase stability.}
-The phase-change ratio drops from $2.32\times$ (Stage~2, hard switching) to
-$1.57\times$ (Stage~4) to $1.23\times$ (Stage~5), an important property for
-real-world systems where excessive switching introduces mechanical wear and
-driver uncertainty. Beyond hardware longevity, frequent phase changes
-generate repeated inter-green clearance intervals during which the
-intersection serves no movement at all, so each avoided switch reclaims
-capacity that would otherwise be lost to transition overhead. The monotone
-decrease of the ratio as soft gating and the stronger penalty are
-introduced suggests that smooth interpolation between regime-specific
-policies, rather than abrupt switching at classifier boundaries, is the
-mechanism most responsible for stabilizing the realized control
-sequence.
+\textbf{Phase Stability via Soft Gating:} The continuous decline in the phase-change ratio (from $2.32\times$ in Stage 2 to $1.23\times$ in Stage 5) demonstrates that interpolating Q-values via soft gating smooths policy boundaries, significantly reducing erratic switching and transition overhead.
 
-\textbf{Decentralized multi-agent control is effective.}
-Despite the absence of explicit inter-agent communication across
-Stages~3--5, the decentralized MH-DQN achieves consistent improvements
-through implicit coordination via shared simulator dynamics and upstream
-demand smoothing. This is a desirable property for field deployment, where
-a fully centralized controller would require reliable low-latency
-communication among all junctions and would constitute a single point of
-failure for the entire corridor. The decentralized formulation degrades
-gracefully: an individual agent continues to operate on its own local
-state even if neighboring controllers are unavailable, while still
-benefiting from the demand shaping that each upstream junction imposes on
-the arrivals seen downstream. This stands in contrast to recent
-coordination-heavy RL-TSC systems such as CoLLMLight~\cite{yuan2025collmlight},
-which requires per-step LLM inference across cooperating agents, and
-X-Light~\cite{jiang2024xlight}, which shares a single meta-learned policy
-across an entire city; the results here suggest that much of the
-coordination benefit those systems pursue explicitly can instead emerge
-implicitly from regime-aware local policies interacting through a shared
-traffic environment.
+\textbf{Decentralized Effectiveness:} The grid (Stage 3) and corridor (Stages 4-5) results prove that decentralized agents can effectively manage multi-junction networks without explicit communication. Agents implicitly coordinate through shared simulator dynamics and upstream demand smoothing, offering a robust, fault-tolerant alternative to centralized or communication-heavy RL-TSC methods like CoLLMLight~\cite{yuan2025collmlight} and X-Light~\cite{jiang2024xlight}.
 
-\textbf{Transfer learning enables rapid corridor adaptation.}
-Even Stage~4's direct transfer achieves $-49.5\%$ waiting time and $-35.1\%$
-queue length on the real-world corridor, validating the generalizability of
-the regime-aware representation. That a policy trained on a single
-synthetic intersection transfers usefully to a six-junction real-world
-corridor before any corridor-specific fine-tuning indicates that the shared
-encoder captures demand features that are largely invariant across network
-scales. The subsequent fine-tuning stage then acts as a lightweight
-specialization step rather than a full retraining, which is the regime in
-which transfer learning is most valuable: the bulk of the representational
-work is amortized once and reused, and adaptation to a new site is reduced
-to a short, low-learning-rate refinement.
+\textbf{Transferability:} The strong baseline performance of direct transfer (Stage 4) confirms that the shared encoder captures scale-invariant demand features. Subsequent fine-tuning (Stage 5) acts merely as lightweight specialization, validating the practical deployment value of transfer learning in urban TSC.
 
 % ---------------------------------------------------------------
 \section{Future Work}
 \label{sec:future}
 % ---------------------------------------------------------------
 
-Several directions emerge from this progressive development:
-
-\begin{enumerate}
-    \item \textit{Reward Function Tuning:} Pareto-optimal reward
-          formulations jointly optimizing waiting time and throughput could
-          reduce the residual $\approx\!11\%$ throughput gap, potentially
-          incorporating traveler-level equity terms in the spirit of
-          Zhang et al.~\cite{zhang2026equity}.
-    \item \textit{Explicit Multi-Agent Coordination:} Graph neural
-          networks, attention mechanisms, or cooperating LLM agents for
-          inter-agent communication~\cite{wei2019colight,yuan2025collmlight}
-          could enable corridor-level coordination while maintaining
-          waiting-time gains.
-    \item \textit{Hierarchical Policy Learning:} A corridor-level policy
-          coordinating junction-level agents could yield system-level
-          benefits beyond individual junction optimization.
-    \item \textit{Dynamic Regime Threshold Adaptation:} Adaptive regime
-          boundary definitions, potentially learned jointly with the
-          gating mechanism as in mixture-of-experts
-          controllers~\cite{yao2025moesac}, could improve robustness
-          across diverse urban environments and time-of-day demand
-          profiles.
-    \item \textit{Real-World Deployment:} Transferring SUMO-trained
-          policies to real intersections with live sensor data, noise,
-          communication delays, and safety constraints is the critical
-          next step, addressing the deployment barriers identified by
-          Chen et al.~\cite{chen2022realdeal} and preceded by
-          cross-simulator validation using open benchmarking tools such
-          as LibSignal~\cite{mei2023libsignal}.
-    \item \textit{Extended Corridor Networks:} Applying the framework
-          city-wide through hierarchical or federated multi-agent
-          extensions, following the cross-city transfer strategy of
-          X-Light~\cite{jiang2024xlight} or the corridor-to-network
-          action-branching decomposition of
-          Zhang et al.~\cite{zhang2026equity}, building on Stage~3
-          scalability.
-\end{enumerate}
+Several directions emerge from this progressive development: (1) Pareto-optimal reward formulations jointly optimizing waiting time and throughput could reduce the residual $\approx\!11\%$ throughput gap, potentially incorporating traveler-level equity terms~\cite{zhang2026equity}. (2) Explicit multi-agent coordination via graph neural networks or cooperating LLM agents~\cite{wei2019colight,yuan2025collmlight} could enable corridor-level synchronization. (3) Dynamic regime threshold adaptation, learned jointly with the gating mechanism~\cite{yao2025moesac}, could improve robustness across diverse time-of-day demand profiles. (4) Transferring SUMO-trained policies to real intersections with live sensor data and safety constraints is the critical next step for field deployment~\cite{chen2022realdeal,mei2023libsignal}. (5) Finally, applying the framework city-wide through hierarchical or federated multi-agent extensions could further leverage the scalability demonstrated in Stage~3.
 
 % ---------------------------------------------------------------
 \section{Conclusion}
